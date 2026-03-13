@@ -1,0 +1,164 @@
+{
+  "version": 2,
+  "add-ons": [
+    {
+      "id": "obsidian",
+      "name": "Obsidian Vault",
+      "description": "Connect your Obsidian vault to Crow for reading, searching, and syncing notes",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "productivity",
+      "tags": ["notes", "knowledge-base", "markdown", "vault", "research"],
+      "icon": "book",
+      "requires": {
+        "env": ["OBSIDIAN_VAULT_PATH"],
+        "min_ram_mb": 128,
+        "min_disk_mb": 50
+      },
+      "env_vars": [
+        {
+          "name": "OBSIDIAN_VAULT_PATH",
+          "description": "Absolute path to your Obsidian vault directory",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "home-assistant",
+      "name": "Home Assistant",
+      "description": "Control your smart home through Home Assistant — lights, temperature, switches, and more",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "smart-home",
+      "tags": ["smart-home", "iot", "automation", "devices", "sensors"],
+      "icon": "home",
+      "requires": {
+        "env": ["HA_URL", "HA_TOKEN"],
+        "min_ram_mb": 256,
+        "min_disk_mb": 100
+      },
+      "env_vars": [
+        {
+          "name": "HA_URL",
+          "description": "Home Assistant URL (e.g., http://homeassistant.local:8123)",
+          "required": true
+        },
+        {
+          "name": "HA_TOKEN",
+          "description": "Home Assistant long-lived access token",
+          "required": true,
+          "secret": true
+        }
+      ]
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama (Local AI)",
+      "description": "Run local AI models for embeddings, summarization, and content classification",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "ai",
+      "tags": ["ai", "local", "embeddings", "privacy", "llm"],
+      "icon": "brain",
+      "requires": {
+        "env": ["OLLAMA_HOST"],
+        "min_ram_mb": 2048,
+        "min_disk_mb": 5000
+      },
+      "env_vars": [
+        {
+          "name": "OLLAMA_HOST",
+          "description": "Ollama API endpoint",
+          "default": "http://localhost:11434",
+          "required": true
+        }
+      ],
+      "ports": [11434],
+      "notes": "RAM and disk depend on model size. Small models need ~2GB, large models need 8GB+."
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "description": "Access Nextcloud files via WebDAV mount — sync documents, browse folders",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "productivity",
+      "tags": ["files", "sync", "self-hosted", "webdav", "documents"],
+      "icon": "cloud",
+      "requires": {
+        "env": ["NEXTCLOUD_URL", "NEXTCLOUD_USER", "NEXTCLOUD_PASSWORD"],
+        "min_ram_mb": 512,
+        "min_disk_mb": 1024
+      },
+      "env_vars": [
+        {
+          "name": "NEXTCLOUD_URL",
+          "description": "Nextcloud server URL (e.g., http://localhost:8080)",
+          "required": true
+        },
+        {
+          "name": "NEXTCLOUD_USER",
+          "description": "Nextcloud admin username",
+          "default": "admin",
+          "required": true
+        },
+        {
+          "name": "NEXTCLOUD_PASSWORD",
+          "description": "Nextcloud admin password",
+          "required": true,
+          "secret": true
+        }
+      ],
+      "ports": [8080]
+    },
+    {
+      "id": "immich",
+      "name": "Immich Photos",
+      "description": "Search photos, browse albums, and manage your Immich photo library",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["photos", "albums", "self-hosted", "backup", "search"],
+      "icon": "image",
+      "requires": {
+        "env": ["IMMICH_URL", "IMMICH_API_KEY"],
+        "min_ram_mb": 2048,
+        "min_disk_mb": 5000
+      },
+      "env_vars": [
+        {
+          "name": "IMMICH_URL",
+          "description": "Immich server URL (e.g., http://localhost:2283)",
+          "required": true
+        },
+        {
+          "name": "IMMICH_API_KEY",
+          "description": "Immich API key (from Immich admin panel)",
+          "required": true,
+          "secret": true
+        }
+      ],
+      "notes": "Connects to an existing Immich instance. Limited ARM64 support."
+    },
+    {
+      "id": "podcast",
+      "name": "Podcast Publisher",
+      "description": "Publish podcast episodes with iTunes-compatible RSS feeds",
+      "type": "skill",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["podcast", "audio", "rss", "itunes"],
+      "icon": "mic",
+      "requires": {
+        "min_ram_mb": 64,
+        "min_disk_mb": 100
+      }
+    }
+  ]
+}
