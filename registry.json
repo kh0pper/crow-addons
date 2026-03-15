@@ -9,11 +9,19 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "productivity",
-      "tags": ["notes", "knowledge-base", "markdown", "vault", "research"],
+      "tags": [
+        "notes",
+        "knowledge-base",
+        "markdown",
+        "vault",
+        "research"
+      ],
       "icon": "book",
       "webUI": null,
       "requires": {
-        "env": ["OBSIDIAN_VAULT_PATH"],
+        "env": [
+          "OBSIDIAN_VAULT_PATH"
+        ],
         "min_ram_mb": 128,
         "min_disk_mb": 50
       },
@@ -28,16 +36,25 @@
     {
       "id": "home-assistant",
       "name": "Home Assistant",
-      "description": "Control your smart home through Home Assistant — lights, temperature, switches, and more",
+      "description": "Control your smart home through Home Assistant \u2014 lights, temperature, switches, and more",
       "type": "mcp-server",
       "version": "1.0.0",
       "author": "Crow",
       "category": "smart-home",
-      "tags": ["smart-home", "iot", "automation", "devices", "sensors"],
+      "tags": [
+        "smart-home",
+        "iot",
+        "automation",
+        "devices",
+        "sensors"
+      ],
       "icon": "home",
       "webUI": null,
       "requires": {
-        "env": ["HA_URL", "HA_TOKEN"],
+        "env": [
+          "HA_URL",
+          "HA_TOKEN"
+        ],
         "min_ram_mb": 256,
         "min_disk_mb": 100
       },
@@ -63,11 +80,19 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
-      "tags": ["ai", "local", "embeddings", "privacy", "llm"],
+      "tags": [
+        "ai",
+        "local",
+        "embeddings",
+        "privacy",
+        "llm"
+      ],
       "icon": "brain",
       "webUI": null,
       "requires": {
-        "env": ["OLLAMA_HOST"],
+        "env": [
+          "OLLAMA_HOST"
+        ],
         "min_ram_mb": 2048,
         "min_disk_mb": 5000
       },
@@ -79,22 +104,37 @@
           "required": true
         }
       ],
-      "ports": [11434],
+      "ports": [
+        11434
+      ],
       "notes": "RAM and disk depend on model size. Small models need ~2GB, large models need 8GB+."
     },
     {
       "id": "localai",
       "name": "LocalAI",
-      "description": "OpenAI-compatible local AI server — chat, embeddings, and TTS without a cloud API",
+      "description": "OpenAI-compatible local AI server \u2014 chat, embeddings, and TTS without a cloud API",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
-      "tags": ["ai", "local", "embeddings", "privacy", "llm", "openai-compatible"],
+      "tags": [
+        "ai",
+        "local",
+        "embeddings",
+        "privacy",
+        "llm",
+        "openai-compatible"
+      ],
       "icon": "brain",
-      "webUI": { "port": 8080, "path": "/", "label": "LocalAI" },
+      "webUI": {
+        "port": 8080,
+        "path": "/",
+        "label": "LocalAI"
+      },
       "requires": {
-        "env": ["LOCALAI_HOST"],
+        "env": [
+          "LOCALAI_HOST"
+        ],
         "min_ram_mb": 4096,
         "min_disk_mb": 10000
       },
@@ -106,22 +146,38 @@
           "required": true
         }
       ],
-      "ports": [8080],
+      "ports": [
+        8080
+      ],
       "notes": "OpenAI-compatible API. Set AI_PROVIDER=openai and AI_BASE_URL=http://localhost:8080/v1 to use with Crow AI Chat."
     },
     {
       "id": "nextcloud",
       "name": "Nextcloud",
-      "description": "Access Nextcloud files via WebDAV mount — sync documents, browse folders",
+      "description": "Access Nextcloud files via WebDAV mount \u2014 sync documents, browse folders",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "productivity",
-      "tags": ["files", "sync", "self-hosted", "webdav", "documents"],
+      "tags": [
+        "files",
+        "sync",
+        "self-hosted",
+        "webdav",
+        "documents"
+      ],
       "icon": "cloud",
-      "webUI": { "port": 8080, "path": "/", "label": "Nextcloud" },
+      "webUI": {
+        "port": 8080,
+        "path": "/",
+        "label": "Nextcloud"
+      },
       "requires": {
-        "env": ["NEXTCLOUD_URL", "NEXTCLOUD_USER", "NEXTCLOUD_PASSWORD"],
+        "env": [
+          "NEXTCLOUD_URL",
+          "NEXTCLOUD_USER",
+          "NEXTCLOUD_PASSWORD"
+        ],
         "min_ram_mb": 512,
         "min_disk_mb": 1024
       },
@@ -144,7 +200,9 @@
           "secret": true
         }
       ],
-      "ports": [8080]
+      "ports": [
+        8080
+      ]
     },
     {
       "id": "immich",
@@ -154,11 +212,24 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "media",
-      "tags": ["photos", "albums", "self-hosted", "backup", "search"],
+      "tags": [
+        "photos",
+        "albums",
+        "self-hosted",
+        "backup",
+        "search"
+      ],
       "icon": "image",
-      "webUI": { "port": 2283, "path": "/", "label": "Immich" },
+      "webUI": {
+        "port": 2283,
+        "path": "/",
+        "label": "Immich"
+      },
       "requires": {
-        "env": ["IMMICH_URL", "IMMICH_API_KEY"],
+        "env": [
+          "IMMICH_URL",
+          "IMMICH_API_KEY"
+        ],
         "min_ram_mb": 2048,
         "min_disk_mb": 5000
       },
@@ -180,16 +251,28 @@
     {
       "id": "minio",
       "name": "File Storage (MinIO)",
-      "description": "S3-compatible file storage — upload, organize, and share files through Crow",
+      "description": "S3-compatible file storage \u2014 upload, organize, and share files through Crow",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "storage",
-      "tags": ["storage", "files", "s3", "upload", "self-hosted"],
+      "tags": [
+        "storage",
+        "files",
+        "s3",
+        "upload",
+        "self-hosted"
+      ],
       "icon": "archive",
-      "webUI": { "port": 9001, "path": "/", "label": "Console" },
+      "webUI": {
+        "port": 9001,
+        "path": "/",
+        "label": "Console"
+      },
       "requires": {
-        "env": ["MINIO_ROOT_PASSWORD"],
+        "env": [
+          "MINIO_ROOT_PASSWORD"
+        ],
         "min_ram_mb": 256,
         "min_disk_mb": 500
       },
@@ -225,7 +308,10 @@
           "required": false
         }
       ],
-      "ports": [9000, 9001],
+      "ports": [
+        9000,
+        9001
+      ],
       "notes": "After installation, Crow's storage tools (upload, list, delete files) are available automatically. MinIO console at http://localhost:9001."
     },
     {
@@ -236,14 +322,19 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "media",
-      "tags": ["podcast", "audio", "rss", "itunes"],
+      "tags": [
+        "podcast",
+        "audio",
+        "rss",
+        "itunes"
+      ],
       "icon": "mic",
       "webUI": null,
       "requires": {
         "min_ram_mb": 64,
         "min_disk_mb": 100
       },
-      "notes": "Extends the blog server — podcast episodes are blog posts tagged 'podcast' with audio metadata. Includes a Podcast panel for the Crow's Nest dashboard. No additional server required."
+      "notes": "Extends the blog server \u2014 podcast episodes are blog posts tagged 'podcast' with audio metadata. Includes a Podcast panel for the Crow's Nest dashboard. No additional server required."
     },
     {
       "id": "openclaw",
@@ -253,11 +344,25 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
-      "tags": ["ai", "bot", "discord", "telegram", "whatsapp", "assistant", "chat"],
+      "tags": [
+        "ai",
+        "bot",
+        "discord",
+        "telegram",
+        "whatsapp",
+        "assistant",
+        "chat"
+      ],
       "icon": "message-circle",
-      "webUI": { "port": 18789, "path": "/", "label": "OpenClaw Control" },
+      "webUI": {
+        "port": 18789,
+        "path": "/",
+        "label": "OpenClaw Control"
+      },
       "requires": {
-        "env": ["OPENCLAW_GATEWAY_TOKEN"],
+        "env": [
+          "OPENCLAW_GATEWAY_TOKEN"
+        ],
         "min_ram_mb": 2048,
         "min_disk_mb": 1000
       },
@@ -298,22 +403,38 @@
           "required": false
         }
       ],
-      "ports": [18789],
+      "ports": [
+        18789
+      ],
       "notes": "Connects to Discord, Telegram, WhatsApp, Slack, Signal, iMessage, and more. Configure chat platform tokens after install. Set CROW_GATEWAY_URL to connect Crow tools."
     },
     {
       "id": "romm",
       "name": "RoMM",
-      "description": "Retro game library and emulator — browse, organize, and play retro games in the browser",
+      "description": "Retro game library and emulator \u2014 browse, organize, and play retro games in the browser",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "gaming",
-      "tags": ["gaming", "retro", "emulator", "roms", "library"],
+      "tags": [
+        "gaming",
+        "retro",
+        "emulator",
+        "roms",
+        "library"
+      ],
       "icon": "gamepad",
-      "webUI": { "port": 3080, "path": "/", "label": "RoMM" },
+      "webUI": {
+        "port": 3080,
+        "path": "/",
+        "label": "RoMM"
+      },
       "requires": {
-        "env": ["ROMM_LIBRARY_PATH", "ROMM_DB_PASSWORD", "ROMM_AUTH_SECRET_KEY"],
+        "env": [
+          "ROMM_LIBRARY_PATH",
+          "ROMM_DB_PASSWORD",
+          "ROMM_AUTH_SECRET_KEY"
+        ],
         "min_ram_mb": 512,
         "min_disk_mb": 2000
       },
@@ -338,8 +459,57 @@
           "secret": true
         }
       ],
-      "ports": [3080],
+      "ports": [
+        3080
+      ],
       "notes": "Organize ROMs into system subdirectories (gba/, snes/, n64/, etc.). IGDB credentials (free) enable automatic cover art and metadata."
+    },
+    {
+      "id": "media",
+      "name": "Media Hub",
+      "description": "News aggregation, RSS feeds, YouTube channels, podcasts, TTS audio, briefings, playlists, smart folders, email digests",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": [
+        "news",
+        "rss",
+        "youtube",
+        "podcast",
+        "feed",
+        "tts",
+        "digest"
+      ],
+      "icon": "rss",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 256,
+        "min_disk_mb": 200
+      },
+      "env_vars": [
+        {
+          "name": "CROW_MEDIA_TASKS",
+          "description": "Enable background tasks",
+          "default": "1"
+        }
+      ],
+      "notes": "16 MCP tools for news and media management. No external services required. AI analysis uses your configured AI provider. TTS requires edge-tts (npm install edge-tts). Email digests require SMTP + nodemailer."
+    },
+    {
+      "id": "tailscale",
+      "name": "Tailscale",
+      "description": "Private network access \u2014 reach Crow from any device on your Tailnet",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "networking",
+      "official": true,
+      "tags": [
+        "networking",
+        "vpn",
+        "remote-access"
+      ]
     }
   ]
 }
