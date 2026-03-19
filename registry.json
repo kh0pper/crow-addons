@@ -510,6 +510,30 @@
         "vpn",
         "remote-access"
       ]
+    },
+    {
+      "id": "songbook",
+      "name": "Songbook",
+      "description": "Personal chord book \u2014 ChordPro charts, transposition, chord diagrams, setlists, audio, and peer sharing",
+      "type": "skill",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": [
+        "music",
+        "chords",
+        "guitar",
+        "piano",
+        "songbook",
+        "chordpro"
+      ],
+      "icon": "music",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 0,
+        "min_disk_mb": 0
+      },
+      "notes": "Songs are blog posts tagged songbook with ChordPro content. Installs a Songbook panel and AI skill."
     }
   ]
 }
