@@ -534,6 +534,72 @@
         "min_disk_mb": 0
       },
       "notes": "Songs are blog posts tagged songbook with ChordPro content. Installs a Songbook panel and AI skill."
+    },
+    {
+      "id": "tax",
+      "name": "Tax Filing Assistant",
+      "description": "Prepare federal income taxes \u2014 PDF document ingestion, calculation, form generation, and guided filing",
+      "type": "mcp-server",
+      "version": "2.0.0",
+      "author": "Crow",
+      "category": "finance",
+      "tags": ["tax", "1040", "IRS", "filing", "finance", "pdf"],
+      "icon": "file-text",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 128,
+        "min_disk_mb": 100
+      },
+      "env_vars": [
+        {
+          "name": "CROW_TAX_ENCRYPTION_KEY",
+          "description": "Passphrase for encrypting PII at rest",
+          "required": true,
+          "secret": true
+        }
+      ],
+      "notes": "Federal returns only \u2014 no state. 17 MCP tools including document ingestion (W-2, 1099, 1098-T PDF reader). 2024 + 2025 tax years. Generates filled IRS PDFs. PII encrypted at rest. Not a substitute for professional tax advice."
+    },
+    {
+      "id": "browser",
+      "name": "Browser Automation",
+      "description": "Stealth browser automation \u2014 navigate, fill forms, take screenshots, extract content via Chrome DevTools Protocol with VNC viewing",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "automation",
+      "tags": ["browser", "automation", "scraping", "cdp", "vnc", "stealth"],
+      "icon": "globe",
+      "webUI": {
+        "port": 6080,
+        "path": "/vnc.html",
+        "label": "VNC Viewer"
+      },
+      "requires": {
+        "env": ["CROW_BROWSER_VNC_PASSWORD"],
+        "min_ram_mb": 1024,
+        "min_disk_mb": 512
+      },
+      "env_vars": [
+        {
+          "name": "CROW_BROWSER_VNC_PASSWORD",
+          "description": "VNC password for browser viewing",
+          "required": true,
+          "secret": true
+        },
+        {
+          "name": "CROW_BROWSER_CDP_PORT",
+          "description": "Chrome DevTools Protocol port",
+          "default": "9222"
+        },
+        {
+          "name": "CROW_BROWSER_VNC_PORT",
+          "description": "noVNC web viewer port",
+          "default": "6080"
+        }
+      ],
+      "ports": [6080, 9222],
+      "notes": "11 MCP tools for browser automation. Runs headless Chrome in Docker with Xvfb + VNC. Human-like typing and clicking for stealth. CDP and VNC bind to localhost only \u2014 access via SSH tunnel from other machines."
     }
   ]
 }
