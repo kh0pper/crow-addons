@@ -9,19 +9,11 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "productivity",
-      "tags": [
-        "notes",
-        "knowledge-base",
-        "markdown",
-        "vault",
-        "research"
-      ],
+      "tags": ["notes", "knowledge-base", "markdown", "vault", "research"],
       "icon": "book",
       "webUI": null,
       "requires": {
-        "env": [
-          "OBSIDIAN_VAULT_PATH"
-        ],
+        "env": ["OBSIDIAN_VAULT_PATH"],
         "min_ram_mb": 128,
         "min_disk_mb": 50
       },
@@ -36,25 +28,16 @@
     {
       "id": "home-assistant",
       "name": "Home Assistant",
-      "description": "Control your smart home through Home Assistant \u2014 lights, temperature, switches, and more",
+      "description": "Control your smart home through Home Assistant — lights, temperature, switches, and more",
       "type": "mcp-server",
       "version": "1.0.0",
       "author": "Crow",
       "category": "smart-home",
-      "tags": [
-        "smart-home",
-        "iot",
-        "automation",
-        "devices",
-        "sensors"
-      ],
+      "tags": ["smart-home", "iot", "automation", "devices", "sensors"],
       "icon": "home",
       "webUI": null,
       "requires": {
-        "env": [
-          "HA_URL",
-          "HA_TOKEN"
-        ],
+        "env": ["HA_URL", "HA_TOKEN"],
         "min_ram_mb": 256,
         "min_disk_mb": 100
       },
@@ -80,19 +63,11 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
-      "tags": [
-        "ai",
-        "local",
-        "embeddings",
-        "privacy",
-        "llm"
-      ],
+      "tags": ["ai", "local", "embeddings", "privacy", "llm"],
       "icon": "brain",
       "webUI": null,
       "requires": {
-        "env": [
-          "OLLAMA_HOST"
-        ],
+        "env": ["OLLAMA_HOST"],
         "min_ram_mb": 2048,
         "min_disk_mb": 5000
       },
@@ -104,37 +79,22 @@
           "required": true
         }
       ],
-      "ports": [
-        11434
-      ],
+      "ports": [11434],
       "notes": "RAM and disk depend on model size. Small models need ~2GB, large models need 8GB+."
     },
     {
       "id": "localai",
       "name": "LocalAI",
-      "description": "OpenAI-compatible local AI server \u2014 chat, embeddings, and TTS without a cloud API",
+      "description": "OpenAI-compatible local AI server — chat, embeddings, and TTS without a cloud API",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
-      "tags": [
-        "ai",
-        "local",
-        "embeddings",
-        "privacy",
-        "llm",
-        "openai-compatible"
-      ],
+      "tags": ["ai", "local", "embeddings", "privacy", "llm", "openai-compatible"],
       "icon": "brain",
-      "webUI": {
-        "port": 8080,
-        "path": "/",
-        "label": "LocalAI"
-      },
+      "webUI": { "port": 8080, "path": "/", "label": "LocalAI" },
       "requires": {
-        "env": [
-          "LOCALAI_HOST"
-        ],
+        "env": ["LOCALAI_HOST"],
         "min_ram_mb": 4096,
         "min_disk_mb": 10000
       },
@@ -146,38 +106,22 @@
           "required": true
         }
       ],
-      "ports": [
-        8080
-      ],
+      "ports": [8080],
       "notes": "OpenAI-compatible API. Set AI_PROVIDER=openai and AI_BASE_URL=http://localhost:8080/v1 to use with Crow AI Chat."
     },
     {
       "id": "nextcloud",
       "name": "Nextcloud",
-      "description": "Access Nextcloud files via WebDAV mount \u2014 sync documents, browse folders",
+      "description": "Access Nextcloud files via WebDAV mount — sync documents, browse folders",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "productivity",
-      "tags": [
-        "files",
-        "sync",
-        "self-hosted",
-        "webdav",
-        "documents"
-      ],
+      "tags": ["files", "sync", "self-hosted", "webdav", "documents"],
       "icon": "cloud",
-      "webUI": {
-        "port": 8080,
-        "path": "/",
-        "label": "Nextcloud"
-      },
+      "webUI": { "port": 8080, "path": "/", "label": "Nextcloud" },
       "requires": {
-        "env": [
-          "NEXTCLOUD_URL",
-          "NEXTCLOUD_USER",
-          "NEXTCLOUD_PASSWORD"
-        ],
+        "env": ["NEXTCLOUD_URL", "NEXTCLOUD_USER", "NEXTCLOUD_PASSWORD"],
         "min_ram_mb": 512,
         "min_disk_mb": 1024
       },
@@ -200,9 +144,7 @@
           "secret": true
         }
       ],
-      "ports": [
-        8080
-      ]
+      "ports": [8080]
     },
     {
       "id": "immich",
@@ -212,24 +154,11 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "media",
-      "tags": [
-        "photos",
-        "albums",
-        "self-hosted",
-        "backup",
-        "search"
-      ],
+      "tags": ["photos", "albums", "self-hosted", "backup", "search"],
       "icon": "image",
-      "webUI": {
-        "port": 2283,
-        "path": "/",
-        "label": "Immich"
-      },
+      "webUI": { "port": 2283, "path": "/", "label": "Immich" },
       "requires": {
-        "env": [
-          "IMMICH_URL",
-          "IMMICH_API_KEY"
-        ],
+        "env": ["IMMICH_URL", "IMMICH_API_KEY"],
         "min_ram_mb": 2048,
         "min_disk_mb": 5000
       },
@@ -251,28 +180,16 @@
     {
       "id": "minio",
       "name": "File Storage (MinIO)",
-      "description": "S3-compatible file storage \u2014 upload, organize, and share files through Crow",
+      "description": "S3-compatible file storage — upload, organize, and share files through Crow",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "storage",
-      "tags": [
-        "storage",
-        "files",
-        "s3",
-        "upload",
-        "self-hosted"
-      ],
+      "tags": ["storage", "files", "s3", "upload", "self-hosted"],
       "icon": "archive",
-      "webUI": {
-        "port": 9001,
-        "path": "/",
-        "label": "Console"
-      },
+      "webUI": { "port": 9001, "path": "/", "label": "Console" },
       "requires": {
-        "env": [
-          "MINIO_ROOT_PASSWORD"
-        ],
+        "env": ["MINIO_ROOT_PASSWORD"],
         "min_ram_mb": 256,
         "min_disk_mb": 500
       },
@@ -308,33 +225,45 @@
           "required": false
         }
       ],
-      "ports": [
-        9000,
-        9001
-      ],
+      "ports": [9000, 9001],
       "notes": "After installation, Crow's storage tools (upload, list, delete files) are available automatically. MinIO console at http://localhost:9001."
     },
     {
-      "id": "podcast",
-      "name": "Podcast Publisher",
-      "description": "Publish podcast episodes with iTunes-compatible RSS feeds",
-      "type": "skill",
+      "id": "media",
+      "name": "Media Hub",
+      "description": "News aggregation, RSS feeds, YouTube channels, podcasts, TTS audio, briefings, playlists, smart folders, email digests",
+      "type": "mcp-server",
       "version": "1.0.0",
       "author": "Crow",
       "category": "media",
-      "tags": [
-        "podcast",
-        "audio",
-        "rss",
-        "itunes"
+      "tags": ["news", "rss", "youtube", "podcast", "feed", "tts", "digest"],
+      "icon": "rss",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 256,
+        "min_disk_mb": 200
+      },
+      "env_vars": [
+        { "name": "CROW_MEDIA_TASKS", "description": "Enable background tasks", "default": "1" }
       ],
+      "notes": "16 MCP tools for news and media management. No external services required. AI analysis uses your configured AI provider. TTS requires edge-tts (npm install edge-tts). Email digests require SMTP + nodemailer."
+    },
+    {
+      "id": "podcast",
+      "name": "Podcasts",
+      "description": "Subscribe to and play podcasts, plus publish your own podcast episodes as blog posts with iTunes-compatible RSS",
+      "type": "skill",
+      "version": "1.1.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["podcast", "audio", "rss", "itunes", "subscribe", "listen"],
       "icon": "mic",
       "webUI": null,
       "requires": {
         "min_ram_mb": 64,
         "min_disk_mb": 100
       },
-      "notes": "Extends the blog server \u2014 podcast episodes are blog posts tagged 'podcast' with audio metadata. Includes a Podcast panel for the Crow's Nest dashboard. No additional server required."
+      "notes": "Includes both a podcast player (subscribe and listen) and a podcast publisher (create episodes as blog posts). Tables are self-initialized on first use."
     },
     {
       "id": "openclaw",
@@ -344,25 +273,11 @@
       "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
-      "tags": [
-        "ai",
-        "bot",
-        "discord",
-        "telegram",
-        "whatsapp",
-        "assistant",
-        "chat"
-      ],
+      "tags": ["ai", "bot", "discord", "telegram", "whatsapp", "assistant", "chat"],
       "icon": "message-circle",
-      "webUI": {
-        "port": 18789,
-        "path": "/",
-        "label": "OpenClaw Control"
-      },
+      "webUI": { "port": 18789, "path": "/", "label": "OpenClaw Control" },
       "requires": {
-        "env": [
-          "OPENCLAW_GATEWAY_TOKEN"
-        ],
+        "env": ["OPENCLAW_GATEWAY_TOKEN"],
         "min_ram_mb": 2048,
         "min_disk_mb": 1000
       },
@@ -403,38 +318,22 @@
           "required": false
         }
       ],
-      "ports": [
-        18789
-      ],
+      "ports": [18789],
       "notes": "Connects to Discord, Telegram, WhatsApp, Slack, Signal, iMessage, and more. Configure chat platform tokens after install. Set CROW_GATEWAY_URL to connect Crow tools."
     },
     {
       "id": "romm",
       "name": "RoMM",
-      "description": "Retro game library and emulator \u2014 browse, organize, and play retro games in the browser",
+      "description": "Retro game library and emulator — browse, organize, and play retro games in the browser",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "gaming",
-      "tags": [
-        "gaming",
-        "retro",
-        "emulator",
-        "roms",
-        "library"
-      ],
+      "tags": ["gaming", "retro", "emulator", "roms", "library"],
       "icon": "gamepad",
-      "webUI": {
-        "port": 3080,
-        "path": "/",
-        "label": "RoMM"
-      },
+      "webUI": { "port": 3080, "path": "/", "label": "RoMM" },
       "requires": {
-        "env": [
-          "ROMM_LIBRARY_PATH",
-          "ROMM_DB_PASSWORD",
-          "ROMM_AUTH_SECRET_KEY"
-        ],
+        "env": ["ROMM_LIBRARY_PATH", "ROMM_DB_PASSWORD", "ROMM_AUTH_SECRET_KEY"],
         "min_ram_mb": 512,
         "min_disk_mb": 2000
       },
@@ -459,91 +358,46 @@
           "secret": true
         }
       ],
-      "ports": [
-        3080
-      ],
+      "ports": [3080],
       "notes": "Organize ROMs into system subdirectories (gba/, snes/, n64/, etc.). IGDB credentials (free) enable automatic cover art and metadata."
-    },
-    {
-      "id": "media",
-      "name": "Media Hub",
-      "description": "News aggregation, RSS feeds, YouTube channels, podcasts, TTS audio, briefings, playlists, smart folders, email digests",
-      "type": "mcp-server",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "media",
-      "tags": [
-        "news",
-        "rss",
-        "youtube",
-        "podcast",
-        "feed",
-        "tts",
-        "digest"
-      ],
-      "icon": "rss",
-      "webUI": null,
-      "requires": {
-        "min_ram_mb": 256,
-        "min_disk_mb": 200
-      },
-      "env_vars": [
-        {
-          "name": "CROW_MEDIA_TASKS",
-          "description": "Enable background tasks",
-          "default": "1"
-        }
-      ],
-      "notes": "16 MCP tools for news and media management. No external services required. AI analysis uses your configured AI provider. TTS requires edge-tts (npm install edge-tts). Email digests require SMTP + nodemailer."
     },
     {
       "id": "tailscale",
       "name": "Tailscale",
-      "description": "Private network access \u2014 reach Crow from any device on your Tailnet",
+      "description": "Private network access — reach Crow from any device on your Tailnet",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "networking",
       "official": true,
-      "tags": [
-        "networking",
-        "vpn",
-        "remote-access"
-      ]
+      "tags": ["networking", "vpn", "remote-access"]
     },
     {
       "id": "songbook",
       "name": "Songbook",
-      "description": "Personal chord book \u2014 ChordPro charts, transposition, chord diagrams, setlists, audio, and peer sharing",
+      "description": "Personal chord book — ChordPro charts, transposition, chord diagrams, setlists, audio, and peer sharing",
       "type": "skill",
       "version": "1.0.0",
       "author": "Crow",
       "category": "media",
-      "tags": [
-        "music",
-        "chords",
-        "guitar",
-        "piano",
-        "songbook",
-        "chordpro"
-      ],
+      "tags": ["music", "chords", "guitar", "piano", "songbook", "chordpro"],
       "icon": "music",
       "webUI": null,
       "requires": {
         "min_ram_mb": 0,
         "min_disk_mb": 0
       },
-      "notes": "Songs are blog posts tagged songbook with ChordPro content. Installs a Songbook panel and AI skill."
+      "notes": "Songs are blog posts tagged 'songbook' with ChordPro content. Installs a Songbook panel and AI skill."
     },
     {
       "id": "tax",
       "name": "Tax Filing Assistant",
-      "description": "Prepare federal income taxes \u2014 PDF document ingestion, calculation, form generation, and guided filing",
+      "description": "Prepare federal income taxes — document collection, calculation, PDF generation, and guided filing",
       "type": "mcp-server",
-      "version": "2.0.0",
+      "version": "1.0.0",
       "author": "Crow",
       "category": "finance",
-      "tags": ["tax", "1040", "IRS", "filing", "finance", "pdf"],
+      "tags": ["tax", "1040", "IRS", "filing", "finance"],
       "icon": "file-text",
       "webUI": null,
       "requires": {
@@ -551,30 +405,56 @@
         "min_disk_mb": 100
       },
       "env_vars": [
-        {
-          "name": "CROW_TAX_ENCRYPTION_KEY",
-          "description": "Passphrase for encrypting PII at rest",
-          "required": true,
-          "secret": true
-        }
+        { "name": "CROW_TAX_ENCRYPTION_KEY", "description": "Passphrase for encrypting PII at rest", "required": true, "secret": true }
       ],
-      "notes": "Federal returns only \u2014 no state. 17 MCP tools including document ingestion (W-2, 1099, 1098-T PDF reader). 2024 + 2025 tax years. Generates filled IRS PDFs. PII encrypted at rest. Not a substitute for professional tax advice."
+      "notes": "Federal returns only — no state. 17 MCP tools including document ingestion (PDF reader). 2024 + 2025 tax years. Generates filled IRS PDFs. PII encrypted at rest. Not a substitute for professional tax advice."
+    },
+    {
+      "id": "data-dashboard",
+      "name": "Data Dashboard",
+      "description": "Explore SQLite databases, run queries, build charts, create case studies, and publish to your blog",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "data",
+      "official": true,
+      "tags": ["data", "sql", "charts", "visualization", "case-study", "research"],
+      "icon": "database",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 128,
+        "min_disk_mb": 100
+      },
+      "notes": "10 MCP tools for data exploration. Includes SQL editor, schema explorer, and case study publishing. Works with any SQLite database registered as a project backend."
+    },
+    {
+      "id": "nominatim",
+      "name": "Nominatim GIS",
+      "description": "Self-hosted geocoding and GIS — forward/reverse geocode, batch geocode data columns, generate GeoJSON, map visualizations",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "data",
+      "official": true,
+      "tags": ["gis", "geocoding", "maps", "openstreetmap", "nominatim", "geojson"],
+      "icon": "map",
+      "requires": {
+        "min_ram_mb": 4096,
+        "min_disk_mb": 30000
+      },
+      "notes": "Requires ~30GB disk (US extract) and 4GB+ RAM. Initial import takes hours. Depends on Data Dashboard for full integration."
     },
     {
       "id": "browser",
       "name": "Browser Automation",
-      "description": "Stealth browser automation \u2014 navigate, fill forms, take screenshots, extract content via Chrome DevTools Protocol with VNC viewing",
+      "description": "Stealth browser automation — navigate, fill forms, take screenshots, extract content via Chrome DevTools Protocol with VNC viewing",
       "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
       "category": "automation",
       "tags": ["browser", "automation", "scraping", "cdp", "vnc", "stealth"],
       "icon": "globe",
-      "webUI": {
-        "port": 6080,
-        "path": "/vnc.html",
-        "label": "VNC Viewer"
-      },
+      "webUI": { "port": 6080, "path": "/vnc.html", "label": "VNC Viewer" },
       "requires": {
         "env": ["CROW_BROWSER_VNC_PASSWORD"],
         "min_ram_mb": 1024,
@@ -599,7 +479,103 @@
         }
       ],
       "ports": [6080, 9222],
-      "notes": "11 MCP tools for browser automation. Runs headless Chrome in Docker with Xvfb + VNC. Human-like typing and clicking for stealth. CDP and VNC bind to localhost only \u2014 access via SSH tunnel from other machines."
+      "notes": "11 MCP tools for browser automation. Runs headless Chrome in Docker with Xvfb + VNC. Human-like typing and clicking for stealth. CDP and VNC bind to localhost only — access via SSH tunnel from other machines."
+    },
+    {
+      "id": "jellyfin",
+      "name": "Jellyfin",
+      "description": "Self-hosted media server — stream movies, TV shows, and music with AI-powered library management",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["media", "movies", "tv", "music", "streaming", "self-hosted"],
+      "icon": "film",
+      "webUI": { "port": 8096, "path": "/", "label": "Jellyfin" },
+      "requires": { "env": ["JELLYFIN_API_KEY"], "min_ram_mb": 1024, "min_disk_mb": 2000 },
+      "env_vars": [
+        { "name": "JELLYFIN_URL", "description": "Jellyfin server URL", "default": "http://localhost:8096", "required": true },
+        { "name": "JELLYFIN_API_KEY", "description": "Jellyfin API key (Dashboard > API Keys)", "required": true, "secret": true },
+        { "name": "JELLYFIN_MEDIA_PATH", "description": "Host path for media files (Docker mode)", "required": false },
+        { "name": "JELLYFIN_CONFIG_PATH", "description": "Host path for config (Docker mode)", "required": false }
+      ],
+      "ports": [8096],
+      "notes": "Self-host via Docker (set JELLYFIN_MEDIA_PATH) or connect to existing (set JELLYFIN_URL + JELLYFIN_API_KEY). 7 MCP tools for library search, browsing, and playback control."
+    },
+    {
+      "id": "plex",
+      "name": "Plex",
+      "description": "Connect your Plex Media Server — browse library, control playback, manage playlists via AI",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["media", "movies", "tv", "music", "streaming", "plex"],
+      "icon": "play-circle",
+      "webUI": { "port": 32400, "path": "/web/index.html", "label": "Plex", "proxyMode": "direct" },
+      "requires": { "env": ["PLEX_URL", "PLEX_TOKEN"], "min_ram_mb": 128, "min_disk_mb": 100 },
+      "env_vars": [
+        { "name": "PLEX_URL", "description": "Plex server URL (e.g., http://localhost:32400)", "required": true },
+        { "name": "PLEX_TOKEN", "description": "Plex authentication token", "required": true, "secret": true }
+      ],
+      "notes": "Connects to existing Plex instance. Get token from browser dev tools on app.plex.tv. Some features require Plex Pass."
+    },
+    {
+      "id": "iptv",
+      "name": "IPTV",
+      "description": "IPTV channel management — M3U playlists, EPG program guide, channel groups, and favorites",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["iptv", "tv", "m3u", "epg", "channels", "streaming", "live"],
+      "icon": "tv",
+      "webUI": null,
+      "requires": { "min_ram_mb": 128, "min_disk_mb": 200 },
+      "env_vars": [
+        { "name": "CROW_IPTV_RECORDINGS_PATH", "description": "Directory for recorded streams", "default": "~/.crow/data/iptv-recordings" },
+        { "name": "CROW_IPTV_EPG_REFRESH_HOURS", "description": "EPG refresh interval in hours", "default": "12" }
+      ],
+      "notes": "Lightweight IPTV manager — no Docker required. Add M3U playlists via AI or the panel. EPG data parsed from XMLTV sources."
+    },
+    {
+      "id": "kodi",
+      "name": "Kodi",
+      "description": "Remote control for Kodi — browse library, control playback, queue media via JSON-RPC",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": ["media", "kodi", "remote", "xbmc", "htpc", "playback"],
+      "icon": "monitor",
+      "webUI": { "port": 8080, "path": "/", "label": "Kodi Web", "proxyMode": "direct" },
+      "requires": { "env": ["KODI_URL"], "min_ram_mb": 64, "min_disk_mb": 50 },
+      "env_vars": [
+        { "name": "KODI_URL", "description": "Kodi JSON-RPC endpoint (e.g., http://kodi.local:8080)", "required": true },
+        { "name": "KODI_USER", "description": "Kodi web interface username", "required": false },
+        { "name": "KODI_PASSWORD", "description": "Kodi web interface password", "required": false, "secret": true }
+      ],
+      "notes": "Connects to existing Kodi instance. Enable HTTP remote control in Kodi Settings > Services > Web server."
+    },
+    {
+      "id": "trilium",
+      "name": "TriliumNext",
+      "description": "Personal knowledge base — search notes, manage note trees, clip web content, AI-powered organization via ETAPI",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "productivity",
+      "tags": ["notes", "knowledge-base", "wiki", "organization", "research", "markdown"],
+      "icon": "book-open",
+      "webUI": { "port": 8088, "path": "/", "label": "TriliumNext" },
+      "requires": { "env": ["TRILIUM_ETAPI_TOKEN"], "min_ram_mb": 256, "min_disk_mb": 500 },
+      "env_vars": [
+        { "name": "TRILIUM_URL", "description": "TriliumNext server URL", "default": "http://localhost:8088", "required": true },
+        { "name": "TRILIUM_ETAPI_TOKEN", "description": "ETAPI authentication token", "required": true, "secret": true },
+        { "name": "TRILIUM_DATA_PATH", "description": "Host path for TriliumNext data (Docker mode)", "required": false }
+      ],
+      "ports": [8088],
+      "notes": "Self-host via Docker or connect to existing. Get ETAPI token from Options > ETAPI in TriliumNext. 11 MCP tools for note management."
     }
   ]
 }
