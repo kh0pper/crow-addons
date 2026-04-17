@@ -2,36 +2,217 @@
   "version": 2,
   "add-ons": [
     {
-      "id": "obsidian",
-      "name": "Obsidian Vault",
-      "description": "Connect your Obsidian vault to Crow for reading, searching, and syncing notes",
-      "type": "mcp-server",
+      "id": "browser",
+      "name": "Browser Automation",
+      "description": "Stealth browser automation \u2014 navigate, fill forms, take screenshots, extract content via Chrome DevTools Protocol with VNC viewing",
+      "type": "bundle",
       "version": "1.0.0",
       "author": "Crow",
-      "category": "productivity",
+      "category": "automation",
       "tags": [
-        "notes",
-        "knowledge-base",
-        "markdown",
-        "vault",
-        "research"
+        "browser",
+        "automation",
+        "scraping",
+        "cdp",
+        "vnc",
+        "stealth"
       ],
-      "icon": "book",
-      "webUI": null,
+      "icon": "globe",
+      "webUI": {
+        "port": 6080,
+        "path": "/vnc.html",
+        "label": "VNC Viewer"
+      },
       "requires": {
         "env": [
-          "OBSIDIAN_VAULT_PATH"
+          "CROW_BROWSER_VNC_PASSWORD"
         ],
-        "min_ram_mb": 128,
+        "min_ram_mb": 1024,
+        "min_disk_mb": 512
+      },
+      "env_vars": [
+        {
+          "name": "CROW_BROWSER_VNC_PASSWORD",
+          "description": "VNC password for browser viewing",
+          "required": true,
+          "secret": true
+        },
+        {
+          "name": "CROW_BROWSER_CDP_PORT",
+          "description": "Chrome DevTools Protocol port",
+          "default": "9222"
+        },
+        {
+          "name": "CROW_BROWSER_VNC_PORT",
+          "description": "noVNC web viewer port",
+          "default": "6080"
+        }
+      ],
+      "ports": [
+        6080,
+        9222
+      ],
+      "notes": "11 MCP tools for browser automation. Runs headless Chrome in Docker with Xvfb + VNC. Human-like typing and clicking for stealth. CDP and VNC bind to localhost only \u2014 access via SSH tunnel from other machines."
+    },
+    {
+      "id": "companion",
+      "name": "AI Companion",
+      "description": "Voice-interactive AI companion with animated Live2D avatar, powered by Open-LLM-VTuber with Crow BYOAI",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "companion",
+        "voice",
+        "avatar",
+        "vtuber",
+        "live2d"
+      ],
+      "icon": "\ud83d\udc26",
+      "webUI": {
+        "port": 12393,
+        "path": "/",
+        "label": "AI Companion",
+        "proxyMode": "direct"
+      },
+      "requires": {
+        "min_ram_mb": 512,
+        "min_disk_mb": 2000
+      },
+      "env_vars": [
+        {
+          "name": "COMPANION_TTS_VOICE",
+          "description": "Edge TTS voice name",
+          "default": "en-US-AvaMultilingualNeural",
+          "required": false,
+          "secret": false
+        },
+        {
+          "name": "COMPANION_PERSONA",
+          "description": "Personality prompt for the companion",
+          "default": "You are Crow, an AI companion. Helpful, curious, dry wit. Keep responses concise for speech.",
+          "required": false,
+          "secret": false
+        },
+        {
+          "name": "COMPANION_CHARACTER_NAME",
+          "description": "Display name for the companion",
+          "default": "Crow",
+          "required": false,
+          "secret": false
+        }
+      ],
+      "notes": "Uses Crow AI Profiles for LLM inference. Voice recognition runs locally. TTS uses Edge TTS (free). Requires Tailscale HTTPS for microphone access."
+    },
+    {
+      "id": "coturn",
+      "name": "TURN Server (coturn)",
+      "description": "Self-hosted TURN relay for WebRTC voice chat. Enables NAT traversal for remote companion access when STUN alone is not sufficient.",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "infrastructure",
+      "tags": [
+        "webrtc",
+        "turn",
+        "nat",
+        "voice",
+        "relay",
+        "infrastructure"
+      ],
+      "icon": "radio",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "skills": [],
+      "requires": {
+        "env": [
+          "TURN_SECRET"
+        ],
+        "min_ram_mb": 64,
         "min_disk_mb": 50
       },
       "env_vars": [
         {
-          "name": "OBSIDIAN_VAULT_PATH",
-          "description": "Absolute path to your Obsidian vault directory",
-          "required": true
+          "name": "TURN_SECRET",
+          "description": "Shared secret for generating time-limited TURN credentials",
+          "required": true,
+          "secret": true
+        },
+        {
+          "name": "TURN_REALM",
+          "description": "TURN server realm (usually your domain)",
+          "default": "crow.local",
+          "required": false,
+          "secret": false
+        },
+        {
+          "name": "TURN_EXTERNAL_IP",
+          "description": "Public IP of this machine (required for remote access, leave empty for LAN-only)",
+          "required": false,
+          "secret": false
         }
-      ]
+      ],
+      "ports": [
+        3478,
+        5349
+      ],
+      "webUI": null,
+      "notes": "Optional for Tailscale-only deployments (STUN is sufficient). Required when users connect from restrictive networks. The companion gateway generates time-limited credentials via /api/turn-credentials."
+    },
+    {
+      "id": "crowclaw",
+      "name": "CrowClaw",
+      "description": "Create, configure, deploy, and monitor OpenClaw bots through MCP tools",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "bot",
+        "discord",
+        "telegram",
+        "openclaw",
+        "assistant",
+        "chat"
+      ],
+      "icon": "bot",
+      "webUI": {
+        "port": 18789,
+        "path": "/",
+        "label": "OpenClaw Control"
+      },
+      "requires": {
+        "min_ram_mb": 256,
+        "min_disk_mb": 100
+      }
+    },
+    {
+      "id": "data-dashboard",
+      "name": "Data Dashboard",
+      "description": "Explore SQLite databases, run queries, build charts, create case studies, and publish to your blog",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "data",
+      "official": true,
+      "tags": [
+        "data",
+        "sql",
+        "charts",
+        "visualization",
+        "case-study",
+        "research"
+      ],
+      "icon": "database",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 128,
+        "min_disk_mb": 100
+      },
+      "notes": "10 MCP tools for data exploration. Includes SQL editor, schema explorer, and case study publishing. Works with any SQLite database registered as a project backend."
     },
     {
       "id": "home-assistant",
@@ -70,138 +251,6 @@
           "required": true,
           "secret": true
         }
-      ]
-    },
-    {
-      "id": "ollama",
-      "name": "Ollama (Local AI)",
-      "description": "Run local AI models for embeddings, summarization, and content classification",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "ai",
-      "tags": [
-        "ai",
-        "local",
-        "embeddings",
-        "privacy",
-        "llm"
-      ],
-      "icon": "brain",
-      "webUI": null,
-      "requires": {
-        "env": [
-          "OLLAMA_HOST"
-        ],
-        "min_ram_mb": 2048,
-        "min_disk_mb": 5000
-      },
-      "env_vars": [
-        {
-          "name": "OLLAMA_HOST",
-          "description": "Ollama API endpoint",
-          "default": "http://localhost:11434",
-          "required": true
-        }
-      ],
-      "ports": [
-        11434
-      ],
-      "notes": "RAM and disk depend on model size. Small models need ~2GB, large models need 8GB+."
-    },
-    {
-      "id": "localai",
-      "name": "LocalAI",
-      "description": "OpenAI-compatible local AI server \u2014 chat, embeddings, and TTS without a cloud API",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "ai",
-      "tags": [
-        "ai",
-        "local",
-        "embeddings",
-        "privacy",
-        "llm",
-        "openai-compatible"
-      ],
-      "icon": "brain",
-      "webUI": {
-        "port": 8080,
-        "path": "/",
-        "label": "LocalAI"
-      },
-      "requires": {
-        "env": [
-          "LOCALAI_HOST"
-        ],
-        "min_ram_mb": 4096,
-        "min_disk_mb": 10000
-      },
-      "env_vars": [
-        {
-          "name": "LOCALAI_HOST",
-          "description": "LocalAI API endpoint",
-          "default": "http://localhost:8080",
-          "required": true
-        }
-      ],
-      "ports": [
-        8080
-      ],
-      "notes": "OpenAI-compatible API. Set AI_PROVIDER=openai and AI_BASE_URL=http://localhost:8080/v1 to use with Crow AI Chat."
-    },
-    {
-      "id": "nextcloud",
-      "name": "Nextcloud",
-      "description": "Access Nextcloud files via WebDAV mount \u2014 sync documents, browse folders",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "productivity",
-      "tags": [
-        "files",
-        "sync",
-        "self-hosted",
-        "webdav",
-        "documents"
-      ],
-      "icon": "cloud",
-      "webUI": {
-        "port": 8080,
-        "path": "/",
-        "label": "Nextcloud"
-      },
-      "requires": {
-        "env": [
-          "NEXTCLOUD_URL",
-          "NEXTCLOUD_USER",
-          "NEXTCLOUD_PASSWORD"
-        ],
-        "min_ram_mb": 512,
-        "min_disk_mb": 1024
-      },
-      "env_vars": [
-        {
-          "name": "NEXTCLOUD_URL",
-          "description": "Nextcloud server URL (e.g., http://localhost:8080)",
-          "required": true
-        },
-        {
-          "name": "NEXTCLOUD_USER",
-          "description": "Nextcloud admin username",
-          "default": "admin",
-          "required": true
-        },
-        {
-          "name": "NEXTCLOUD_PASSWORD",
-          "description": "Nextcloud admin password",
-          "required": true,
-          "secret": true
-        }
-      ],
-      "ports": [
-        8080
       ]
     },
     {
@@ -247,6 +296,446 @@
         }
       ],
       "notes": "Connects to an existing Immich instance. Limited ARM64 support."
+    },
+    {
+      "id": "iptv",
+      "name": "IPTV",
+      "description": "IPTV channel management \u2014 M3U playlists, EPG program guide, channel groups, and favorites",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": [
+        "iptv",
+        "tv",
+        "m3u",
+        "epg",
+        "channels",
+        "streaming",
+        "live"
+      ],
+      "icon": "tv",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 128,
+        "min_disk_mb": 200
+      },
+      "env_vars": [
+        {
+          "name": "CROW_IPTV_RECORDINGS_PATH",
+          "description": "Directory for recorded streams",
+          "default": "~/.crow/data/iptv-recordings"
+        },
+        {
+          "name": "CROW_IPTV_EPG_REFRESH_HOURS",
+          "description": "EPG refresh interval in hours",
+          "default": "12"
+        }
+      ],
+      "notes": "Lightweight IPTV manager \u2014 no Docker required. Add M3U playlists via AI or the panel. EPG data parsed from XMLTV sources."
+    },
+    {
+      "id": "jellyfin",
+      "name": "Jellyfin",
+      "description": "Self-hosted media server \u2014 stream movies, TV shows, and music with AI-powered library management",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": [
+        "media",
+        "movies",
+        "tv",
+        "music",
+        "streaming",
+        "self-hosted"
+      ],
+      "icon": "film",
+      "webUI": {
+        "port": 8096,
+        "path": "/",
+        "label": "Jellyfin"
+      },
+      "requires": {
+        "env": [
+          "JELLYFIN_API_KEY"
+        ],
+        "min_ram_mb": 1024,
+        "min_disk_mb": 2000
+      },
+      "env_vars": [
+        {
+          "name": "JELLYFIN_URL",
+          "description": "Jellyfin server URL",
+          "default": "http://localhost:8096",
+          "required": true
+        },
+        {
+          "name": "JELLYFIN_API_KEY",
+          "description": "Jellyfin API key (Dashboard > API Keys)",
+          "required": true,
+          "secret": true
+        },
+        {
+          "name": "JELLYFIN_MEDIA_PATH",
+          "description": "Host path for media files (Docker mode)",
+          "required": false
+        },
+        {
+          "name": "JELLYFIN_CONFIG_PATH",
+          "description": "Host path for config (Docker mode)",
+          "required": false
+        }
+      ],
+      "ports": [
+        8096
+      ],
+      "notes": "Self-host via Docker (set JELLYFIN_MEDIA_PATH) or connect to existing (set JELLYFIN_URL + JELLYFIN_API_KEY). 7 MCP tools for library search, browsing, and playback control."
+    },
+    {
+      "id": "knowledge-base",
+      "name": "Knowledge Base",
+      "version": "1.0.0",
+      "description": "Multilingual knowledge base \u2014 create, manage, and share organized collections of guides and articles with structured resource tracking, verification workflows, and LAN discovery",
+      "type": "mcp-server",
+      "author": "Crow",
+      "category": "productivity",
+      "tags": [
+        "knowledge-base",
+        "guides",
+        "articles",
+        "bilingual",
+        "resources",
+        "documentation",
+        "wcag"
+      ],
+      "icon": "book-open",
+      "server": {
+        "command": "node",
+        "args": [
+          "server/index.js"
+        ],
+        "envKeys": []
+      },
+      "panel": "panel/knowledge-base.js",
+      "panelRoutes": "panel/routes.js",
+      "skills": [
+        "skills/knowledge-base.md"
+      ],
+      "requires": {
+        "min_ram_mb": 128,
+        "min_disk_mb": 200
+      },
+      "env_vars": [],
+      "notes": "General-purpose knowledge base with multilingual support, LAN discovery (mDNS), WCAG 2.1 AA-compliant public pages, and AI-assisted content verification. No Docker required. 10 MCP tools."
+    },
+    {
+      "id": "kodi",
+      "name": "Kodi",
+      "description": "Remote control for Kodi \u2014 browse library, control playback, queue media via JSON-RPC",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": [
+        "media",
+        "kodi",
+        "remote",
+        "xbmc",
+        "htpc",
+        "playback"
+      ],
+      "icon": "monitor",
+      "webUI": {
+        "port": 8080,
+        "path": "/",
+        "label": "Kodi Web",
+        "proxyMode": "direct"
+      },
+      "requires": {
+        "env": [
+          "KODI_URL"
+        ],
+        "min_ram_mb": 64,
+        "min_disk_mb": 50
+      },
+      "env_vars": [
+        {
+          "name": "KODI_URL",
+          "description": "Kodi JSON-RPC endpoint (e.g., http://kodi.local:8080)",
+          "required": true
+        },
+        {
+          "name": "KODI_USER",
+          "description": "Kodi web interface username",
+          "required": false
+        },
+        {
+          "name": "KODI_PASSWORD",
+          "description": "Kodi web interface password",
+          "required": false,
+          "secret": true
+        }
+      ],
+      "notes": "Connects to existing Kodi instance. Enable HTTP remote control in Kodi Settings > Services > Web server."
+    },
+    {
+      "id": "llamacpp-qwen72b",
+      "name": "llama.cpp Qwen2.5-72B Q4_K_M (ROCm gfx1151, tiered Mode B)",
+      "version": "1.0.0",
+      "description": "Top-tier reasoning (Qwen2.5-72B-Instruct Q4_K_M via llama.cpp-ROCm). Replaces vLLM Kimi slot (custom attention segfaults on gfx1151). 64K context, -fa 1 + --no-mmap per kyuz0/amd-strix-halo-toolboxes.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "llm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 60,
+        "platform": "linux-x86_64"
+      },
+      "port": 8003,
+      "host": "local",
+      "providers": []
+    },
+    {
+      "id": "llamacpp-vulkan-glm-45-air",
+      "name": "llama.cpp GLM-4.5-Air Q5_K_M (MoE 106B/12B)",
+      "version": "1.0.0",
+      "description": "On-demand deep-reasoning MoE (~72GB). 12B active params for 70B-class quality. Shares :8003 with coder; conflicts with crow-chat (requires :8002 unload).",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "reasoning",
+        "llama.cpp",
+        "rocm",
+        "gfx1151",
+        "moe"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 80,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "rocm"
+        ]
+      },
+      "port": 8003,
+      "host": "local",
+      "providers": [
+        {
+          "id": "crow-swap-deep",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Deep-reasoning specialist (GLM-4.5-Air Q5_K_M, on-demand; conflicts with crow-chat)",
+          "models": [
+            {
+              "id": "glm-4.5-air",
+              "contextLen": 16384,
+              "warm": false,
+              "onDemand": true,
+              "mutexGroup": "8003-swap",
+              "conflictsWith": [
+                "crow-chat"
+              ],
+              "priority": "batch"
+            }
+          ]
+        }
+      ],
+      "notes": "On-demand. First start downloads ~72GB from HF. Cannot coexist with :8002 (orchestrator unloads crow-chat automatically before warming)."
+    },
+    {
+      "id": "llamacpp-vulkan-qwen3-coder",
+      "name": "llama.cpp Coder (Qwen3-Coder-30B-A3B Q8_0)",
+      "version": "1.0.0",
+      "description": "On-demand code specialist MoE (~30GB). Runs on Strix Halo gfx1151 via kyuz0 llama.cpp image. Shares :8003 with GLM-4.5-Air.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "code",
+        "llama.cpp",
+        "rocm",
+        "gfx1151",
+        "moe"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 40,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "rocm"
+        ]
+      },
+      "port": 8003,
+      "host": "local",
+      "providers": [
+        {
+          "id": "crow-swap-coder",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Code specialist (Qwen3-Coder-30B-A3B Q8_0 MoE, on-demand)",
+          "models": [
+            {
+              "id": "qwen3-coder-30b-a3b",
+              "contextLen": 32768,
+              "warm": false,
+              "onDemand": true,
+              "mutexGroup": "8003-swap",
+              "conflictsWith": [
+                "crow-chat"
+              ],
+              "priority": "interactive"
+            }
+          ]
+        }
+      ],
+      "notes": "On-demand. First start downloads ~30GB from HF. Shares :8003 with GLM-4.5-Air via mutex."
+    },
+    {
+      "id": "llamacpp-vulkan-qwen36-35b-a3b",
+      "name": "llama.cpp Qwen3.6-35B-A3B UD-Q6_K + Vision (Agentic MoE+VLM)",
+      "version": "1.0.0",
+      "description": "On-demand agentic-coding + vision-language MoE (~30GB: 29GB model + 900MB mmproj-F16). 35B total / 3B active. Apr 2026 release. Joins :8003 swap group with coder + GLM.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "code",
+        "agentic",
+        "vision",
+        "vlm",
+        "llama.cpp",
+        "rocm",
+        "gfx1151",
+        "moe"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 40,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "rocm"
+        ]
+      },
+      "port": 8003,
+      "host": "local",
+      "providers": [
+        {
+          "id": "crow-swap-agentic",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Agentic-coding + VLM specialist (Qwen3.6-35B-A3B UD-Q6_K + mmproj-F16, on-demand)",
+          "models": [
+            {
+              "id": "qwen3.6-35b-a3b",
+              "contextLen": 32768,
+              "warm": false,
+              "onDemand": true,
+              "mutexGroup": "8003-swap",
+              "priority": "interactive"
+            }
+          ]
+        }
+      ],
+      "notes": "On-demand. First start requires ~30GB pre-download (unsloth UD-Q6_K + mmproj-F16). Shares :8003 with coder + GLM via mutex \u2014 only one runs at a time. Vision: pass image_url or base64 data URL in chat completions."
+    },
+    {
+      "id": "localai",
+      "name": "LocalAI",
+      "description": "OpenAI-compatible local AI server \u2014 chat, embeddings, and TTS without a cloud API",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "local",
+        "embeddings",
+        "privacy",
+        "llm",
+        "openai-compatible"
+      ],
+      "icon": "brain",
+      "webUI": {
+        "port": 8080,
+        "path": "/",
+        "label": "LocalAI"
+      },
+      "requires": {
+        "env": [
+          "LOCALAI_HOST"
+        ],
+        "min_ram_mb": 4096,
+        "min_disk_mb": 10000
+      },
+      "env_vars": [
+        {
+          "name": "LOCALAI_HOST",
+          "description": "LocalAI API endpoint",
+          "default": "http://localhost:8080",
+          "required": true
+        }
+      ],
+      "ports": [
+        8080
+      ],
+      "notes": "OpenAI-compatible API. Set AI_PROVIDER=openai and AI_BASE_URL=http://localhost:8080/v1 to use with Crow AI Chat."
+    },
+    {
+      "id": "media",
+      "name": "Media Hub",
+      "description": "News aggregation, RSS feeds, YouTube channels, podcasts, TTS audio, briefings, playlists, smart folders, email digests",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "media",
+      "tags": [
+        "news",
+        "rss",
+        "youtube",
+        "podcast",
+        "feed",
+        "tts",
+        "digest"
+      ],
+      "icon": "rss",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 256,
+        "min_disk_mb": 200
+      },
+      "env_vars": [
+        {
+          "name": "CROW_MEDIA_TASKS",
+          "description": "Enable background tasks",
+          "default": "1"
+        }
+      ],
+      "notes": "16 MCP tools for news and media management. No external services required. AI analysis uses your configured AI provider. TTS requires edge-tts (npm install edge-tts). Email digests require SMTP + nodemailer."
     },
     {
       "id": "minio",
@@ -315,36 +804,196 @@
       "notes": "After installation, Crow's storage tools (upload, list, delete files) are available automatically. MinIO console at http://localhost:9001."
     },
     {
-      "id": "media",
-      "name": "Media Hub",
-      "description": "News aggregation, RSS feeds, YouTube channels, podcasts, TTS audio, briefings, playlists, smart folders, email digests",
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "description": "Access Nextcloud files via WebDAV mount \u2014 sync documents, browse folders",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "productivity",
+      "tags": [
+        "files",
+        "sync",
+        "self-hosted",
+        "webdav",
+        "documents"
+      ],
+      "icon": "cloud",
+      "webUI": {
+        "port": 8080,
+        "path": "/",
+        "label": "Nextcloud"
+      },
+      "requires": {
+        "env": [
+          "NEXTCLOUD_URL",
+          "NEXTCLOUD_USER",
+          "NEXTCLOUD_PASSWORD"
+        ],
+        "min_ram_mb": 512,
+        "min_disk_mb": 1024
+      },
+      "env_vars": [
+        {
+          "name": "NEXTCLOUD_URL",
+          "description": "Nextcloud server URL (e.g., http://localhost:8080)",
+          "required": true
+        },
+        {
+          "name": "NEXTCLOUD_USER",
+          "description": "Nextcloud admin username",
+          "default": "admin",
+          "required": true
+        },
+        {
+          "name": "NEXTCLOUD_PASSWORD",
+          "description": "Nextcloud admin password",
+          "required": true,
+          "secret": true
+        }
+      ],
+      "ports": [
+        8080
+      ]
+    },
+    {
+      "id": "nominatim",
+      "name": "Nominatim GIS",
+      "description": "Self-hosted geocoding and GIS \u2014 forward/reverse geocode, batch geocode data columns, generate GeoJSON, map visualizations",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "data",
+      "official": true,
+      "tags": [
+        "gis",
+        "geocoding",
+        "maps",
+        "openstreetmap",
+        "nominatim",
+        "geojson"
+      ],
+      "icon": "map",
+      "requires": {
+        "min_ram_mb": 4096,
+        "min_disk_mb": 30000
+      },
+      "notes": "Requires ~30GB disk (US extract) and 4GB+ RAM. Initial import takes hours. Depends on Data Dashboard for full integration."
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian Vault",
+      "description": "Connect your Obsidian vault to Crow for reading, searching, and syncing notes",
+      "type": "mcp-server",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "productivity",
+      "tags": [
+        "notes",
+        "knowledge-base",
+        "markdown",
+        "vault",
+        "research"
+      ],
+      "icon": "book",
+      "webUI": null,
+      "requires": {
+        "env": [
+          "OBSIDIAN_VAULT_PATH"
+        ],
+        "min_ram_mb": 128,
+        "min_disk_mb": 50
+      },
+      "env_vars": [
+        {
+          "name": "OBSIDIAN_VAULT_PATH",
+          "description": "Absolute path to your Obsidian vault directory",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama (Local AI)",
+      "description": "Run local AI models for embeddings, summarization, and content classification",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "local",
+        "embeddings",
+        "privacy",
+        "llm"
+      ],
+      "icon": "brain",
+      "webUI": null,
+      "requires": {
+        "env": [
+          "OLLAMA_HOST"
+        ],
+        "min_ram_mb": 2048,
+        "min_disk_mb": 5000
+      },
+      "env_vars": [
+        {
+          "name": "OLLAMA_HOST",
+          "description": "Ollama API endpoint",
+          "default": "http://localhost:11434",
+          "required": true
+        }
+      ],
+      "ports": [
+        11434
+      ],
+      "notes": "RAM and disk depend on model size. Small models need ~2GB, large models need 8GB+."
+    },
+    {
+      "id": "plex",
+      "name": "Plex",
+      "description": "Connect your Plex Media Server \u2014 browse library, control playback, manage playlists via AI",
       "type": "mcp-server",
       "version": "1.0.0",
       "author": "Crow",
       "category": "media",
       "tags": [
-        "news",
-        "rss",
-        "youtube",
-        "podcast",
-        "feed",
-        "tts",
-        "digest"
+        "media",
+        "movies",
+        "tv",
+        "music",
+        "streaming",
+        "plex"
       ],
-      "icon": "rss",
-      "webUI": null,
+      "icon": "play-circle",
+      "webUI": {
+        "port": 32400,
+        "path": "/web/index.html",
+        "label": "Plex",
+        "proxyMode": "direct"
+      },
       "requires": {
-        "min_ram_mb": 256,
-        "min_disk_mb": 200
+        "env": [
+          "PLEX_URL",
+          "PLEX_TOKEN"
+        ],
+        "min_ram_mb": 128,
+        "min_disk_mb": 100
       },
       "env_vars": [
         {
-          "name": "CROW_MEDIA_TASKS",
-          "description": "Enable background tasks",
-          "default": "1"
+          "name": "PLEX_URL",
+          "description": "Plex server URL (e.g., http://localhost:32400)",
+          "required": true
+        },
+        {
+          "name": "PLEX_TOKEN",
+          "description": "Plex authentication token",
+          "required": true,
+          "secret": true
         }
       ],
-      "notes": "16 MCP tools for news and media management. No external services required. AI analysis uses your configured AI provider. TTS requires edge-tts (npm install edge-tts). Email digests require SMTP + nodemailer."
+      "notes": "Connects to existing Plex instance. Get token from browser dev tools on app.plex.tv. Some features require Plex Pass."
     },
     {
       "id": "podcast",
@@ -369,34 +1018,6 @@
         "min_disk_mb": 100
       },
       "notes": "Includes both a podcast player (subscribe and listen) and a podcast publisher (create episodes as blog posts). Tables are self-initialized on first use."
-    },
-    {
-      "id": "crowclaw",
-      "name": "CrowClaw",
-      "description": "Create, configure, deploy, and monitor OpenClaw bots through MCP tools",
-      "type": "mcp-server",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "ai",
-      "tags": [
-        "ai",
-        "bot",
-        "discord",
-        "telegram",
-        "openclaw",
-        "assistant",
-        "chat"
-      ],
-      "icon": "bot",
-      "webUI": {
-        "port": 18789,
-        "path": "/",
-        "label": "OpenClaw Control"
-      },
-      "requires": {
-        "min_ram_mb": 256,
-        "min_disk_mb": 100
-      }
     },
     {
       "id": "romm",
@@ -456,19 +1077,40 @@
       "notes": "Organize ROMs into system subdirectories (gba/, snes/, n64/, etc.). IGDB credentials (free) enable automatic cover art and metadata."
     },
     {
-      "id": "tailscale",
-      "name": "Tailscale",
-      "description": "Private network access \u2014 reach Crow from any device on your Tailnet",
-      "type": "bundle",
+      "id": "sdxl",
+      "name": "SDXL Background Generator",
       "version": "1.0.0",
+      "description": "AI-generated backgrounds for the companion avatar using SDXL Turbo. Requires NVIDIA GPU.",
+      "type": "bundle",
       "author": "Crow",
-      "category": "networking",
-      "official": true,
+      "category": "ai",
       "tags": [
-        "networking",
-        "vpn",
-        "remote-access"
-      ]
+        "ai",
+        "gpu",
+        "image-generation",
+        "sdxl",
+        "backgrounds"
+      ],
+      "icon": "image",
+      "webUI": null,
+      "requires": {
+        "min_ram_mb": 4096,
+        "min_disk_mb": 25000,
+        "gpu": true
+      },
+      "env_vars": [
+        {
+          "name": "SDXL_PORT",
+          "description": "SDXL service port",
+          "default": "3005",
+          "required": false,
+          "secret": false
+        }
+      ],
+      "ports": [
+        3005
+      ],
+      "notes": "Requires nvidia-container-toolkit. Models (~25GB) download on first start. Used by companion and storage server's crow_generate_background tool."
     },
     {
       "id": "songbook",
@@ -493,6 +1135,21 @@
         "min_disk_mb": 0
       },
       "notes": "Songs are blog posts tagged 'songbook' with ChordPro content. Installs a Songbook panel and AI skill."
+    },
+    {
+      "id": "tailscale",
+      "name": "Tailscale",
+      "description": "Private network access \u2014 reach Crow from any device on your Tailnet",
+      "type": "bundle",
+      "version": "1.0.0",
+      "author": "Crow",
+      "category": "networking",
+      "official": true,
+      "tags": [
+        "networking",
+        "vpn",
+        "remote-access"
+      ]
     },
     {
       "id": "tax",
@@ -524,299 +1181,6 @@
         }
       ],
       "notes": "Federal returns only \u2014 no state. 17 MCP tools including document ingestion (PDF reader). 2024 + 2025 tax years. Generates filled IRS PDFs. PII encrypted at rest. Not a substitute for professional tax advice."
-    },
-    {
-      "id": "data-dashboard",
-      "name": "Data Dashboard",
-      "description": "Explore SQLite databases, run queries, build charts, create case studies, and publish to your blog",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "data",
-      "official": true,
-      "tags": [
-        "data",
-        "sql",
-        "charts",
-        "visualization",
-        "case-study",
-        "research"
-      ],
-      "icon": "database",
-      "webUI": null,
-      "requires": {
-        "min_ram_mb": 128,
-        "min_disk_mb": 100
-      },
-      "notes": "10 MCP tools for data exploration. Includes SQL editor, schema explorer, and case study publishing. Works with any SQLite database registered as a project backend."
-    },
-    {
-      "id": "nominatim",
-      "name": "Nominatim GIS",
-      "description": "Self-hosted geocoding and GIS \u2014 forward/reverse geocode, batch geocode data columns, generate GeoJSON, map visualizations",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "data",
-      "official": true,
-      "tags": [
-        "gis",
-        "geocoding",
-        "maps",
-        "openstreetmap",
-        "nominatim",
-        "geojson"
-      ],
-      "icon": "map",
-      "requires": {
-        "min_ram_mb": 4096,
-        "min_disk_mb": 30000
-      },
-      "notes": "Requires ~30GB disk (US extract) and 4GB+ RAM. Initial import takes hours. Depends on Data Dashboard for full integration."
-    },
-    {
-      "id": "browser",
-      "name": "Browser Automation",
-      "description": "Stealth browser automation \u2014 navigate, fill forms, take screenshots, extract content via Chrome DevTools Protocol with VNC viewing",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "automation",
-      "tags": [
-        "browser",
-        "automation",
-        "scraping",
-        "cdp",
-        "vnc",
-        "stealth"
-      ],
-      "icon": "globe",
-      "webUI": {
-        "port": 6080,
-        "path": "/vnc.html",
-        "label": "VNC Viewer"
-      },
-      "requires": {
-        "env": [
-          "CROW_BROWSER_VNC_PASSWORD"
-        ],
-        "min_ram_mb": 1024,
-        "min_disk_mb": 512
-      },
-      "env_vars": [
-        {
-          "name": "CROW_BROWSER_VNC_PASSWORD",
-          "description": "VNC password for browser viewing",
-          "required": true,
-          "secret": true
-        },
-        {
-          "name": "CROW_BROWSER_CDP_PORT",
-          "description": "Chrome DevTools Protocol port",
-          "default": "9222"
-        },
-        {
-          "name": "CROW_BROWSER_VNC_PORT",
-          "description": "noVNC web viewer port",
-          "default": "6080"
-        }
-      ],
-      "ports": [
-        6080,
-        9222
-      ],
-      "notes": "11 MCP tools for browser automation. Runs headless Chrome in Docker with Xvfb + VNC. Human-like typing and clicking for stealth. CDP and VNC bind to localhost only \u2014 access via SSH tunnel from other machines."
-    },
-    {
-      "id": "jellyfin",
-      "name": "Jellyfin",
-      "description": "Self-hosted media server \u2014 stream movies, TV shows, and music with AI-powered library management",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "media",
-      "tags": [
-        "media",
-        "movies",
-        "tv",
-        "music",
-        "streaming",
-        "self-hosted"
-      ],
-      "icon": "film",
-      "webUI": {
-        "port": 8096,
-        "path": "/",
-        "label": "Jellyfin"
-      },
-      "requires": {
-        "env": [
-          "JELLYFIN_API_KEY"
-        ],
-        "min_ram_mb": 1024,
-        "min_disk_mb": 2000
-      },
-      "env_vars": [
-        {
-          "name": "JELLYFIN_URL",
-          "description": "Jellyfin server URL",
-          "default": "http://localhost:8096",
-          "required": true
-        },
-        {
-          "name": "JELLYFIN_API_KEY",
-          "description": "Jellyfin API key (Dashboard > API Keys)",
-          "required": true,
-          "secret": true
-        },
-        {
-          "name": "JELLYFIN_MEDIA_PATH",
-          "description": "Host path for media files (Docker mode)",
-          "required": false
-        },
-        {
-          "name": "JELLYFIN_CONFIG_PATH",
-          "description": "Host path for config (Docker mode)",
-          "required": false
-        }
-      ],
-      "ports": [
-        8096
-      ],
-      "notes": "Self-host via Docker (set JELLYFIN_MEDIA_PATH) or connect to existing (set JELLYFIN_URL + JELLYFIN_API_KEY). 7 MCP tools for library search, browsing, and playback control."
-    },
-    {
-      "id": "plex",
-      "name": "Plex",
-      "description": "Connect your Plex Media Server \u2014 browse library, control playback, manage playlists via AI",
-      "type": "mcp-server",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "media",
-      "tags": [
-        "media",
-        "movies",
-        "tv",
-        "music",
-        "streaming",
-        "plex"
-      ],
-      "icon": "play-circle",
-      "webUI": {
-        "port": 32400,
-        "path": "/web/index.html",
-        "label": "Plex",
-        "proxyMode": "direct"
-      },
-      "requires": {
-        "env": [
-          "PLEX_URL",
-          "PLEX_TOKEN"
-        ],
-        "min_ram_mb": 128,
-        "min_disk_mb": 100
-      },
-      "env_vars": [
-        {
-          "name": "PLEX_URL",
-          "description": "Plex server URL (e.g., http://localhost:32400)",
-          "required": true
-        },
-        {
-          "name": "PLEX_TOKEN",
-          "description": "Plex authentication token",
-          "required": true,
-          "secret": true
-        }
-      ],
-      "notes": "Connects to existing Plex instance. Get token from browser dev tools on app.plex.tv. Some features require Plex Pass."
-    },
-    {
-      "id": "iptv",
-      "name": "IPTV",
-      "description": "IPTV channel management \u2014 M3U playlists, EPG program guide, channel groups, and favorites",
-      "type": "mcp-server",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "media",
-      "tags": [
-        "iptv",
-        "tv",
-        "m3u",
-        "epg",
-        "channels",
-        "streaming",
-        "live"
-      ],
-      "icon": "tv",
-      "webUI": null,
-      "requires": {
-        "min_ram_mb": 128,
-        "min_disk_mb": 200
-      },
-      "env_vars": [
-        {
-          "name": "CROW_IPTV_RECORDINGS_PATH",
-          "description": "Directory for recorded streams",
-          "default": "~/.crow/data/iptv-recordings"
-        },
-        {
-          "name": "CROW_IPTV_EPG_REFRESH_HOURS",
-          "description": "EPG refresh interval in hours",
-          "default": "12"
-        }
-      ],
-      "notes": "Lightweight IPTV manager \u2014 no Docker required. Add M3U playlists via AI or the panel. EPG data parsed from XMLTV sources."
-    },
-    {
-      "id": "kodi",
-      "name": "Kodi",
-      "description": "Remote control for Kodi \u2014 browse library, control playback, queue media via JSON-RPC",
-      "type": "mcp-server",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "media",
-      "tags": [
-        "media",
-        "kodi",
-        "remote",
-        "xbmc",
-        "htpc",
-        "playback"
-      ],
-      "icon": "monitor",
-      "webUI": {
-        "port": 8080,
-        "path": "/",
-        "label": "Kodi Web",
-        "proxyMode": "direct"
-      },
-      "requires": {
-        "env": [
-          "KODI_URL"
-        ],
-        "min_ram_mb": 64,
-        "min_disk_mb": 50
-      },
-      "env_vars": [
-        {
-          "name": "KODI_URL",
-          "description": "Kodi JSON-RPC endpoint (e.g., http://kodi.local:8080)",
-          "required": true
-        },
-        {
-          "name": "KODI_USER",
-          "description": "Kodi web interface username",
-          "required": false
-        },
-        {
-          "name": "KODI_PASSWORD",
-          "description": "Kodi web interface password",
-          "required": false,
-          "secret": true
-        }
-      ],
-      "notes": "Connects to existing Kodi instance. Enable HTTP remote control in Kodi Settings > Services > Web server."
     },
     {
       "id": "trilium",
@@ -872,164 +1236,315 @@
       "notes": "Self-host via Docker or connect to existing. Get ETAPI token from Options > ETAPI in TriliumNext. 11 MCP tools for note management."
     },
     {
-      "id": "knowledge-base",
-      "name": "Knowledge Base",
+      "id": "vllm-cuda-embed",
+      "name": "vLLM Embeddings (Qwen3-Embedding-0.6B)",
       "version": "1.0.0",
-      "description": "Multilingual knowledge base \u2014 create, manage, and share organized collections of guides and articles with structured resource tracking, verification workflows, and LAN discovery",
-      "type": "mcp-server",
-      "author": "Crow",
-      "category": "productivity",
-      "tags": [
-        "knowledge-base",
-        "guides",
-        "articles",
-        "bilingual",
-        "resources",
-        "documentation",
-        "wcag"
-      ],
-      "icon": "book-open",
-      "server": {
-        "command": "node",
-        "args": [
-          "server/index.js"
-        ],
-        "envKeys": []
-      },
-      "panel": "panel/knowledge-base.js",
-      "panelRoutes": "panel/routes.js",
-      "skills": [
-        "skills/knowledge-base.md"
-      ],
-      "requires": {
-        "min_ram_mb": 128,
-        "min_disk_mb": 200
-      },
-      "env_vars": [],
-      "notes": "General-purpose knowledge base with multilingual support, LAN discovery (mDNS), WCAG 2.1 AA-compliant public pages, and AI-assisted content verification. No Docker required. 10 MCP tools."
-    },
-    {
-      "id": "companion",
-      "name": "AI Companion",
-      "description": "Voice-interactive AI companion with animated Live2D avatar, powered by Open-LLM-VTuber with Crow BYOAI",
+      "description": "Multilingual text embeddings (Qwen3-Embedding-0.6B, 1024-dim Matryoshka). Powers semantic search across memory, research notes, and blog. CUDA only.",
       "type": "bundle",
-      "version": "1.0.0",
       "author": "Crow",
       "category": "ai",
       "tags": [
-        "companion",
-        "voice",
-        "avatar",
-        "vtuber",
-        "live2d"
+        "ai",
+        "embeddings",
+        "semantic-search",
+        "cuda",
+        "vllm"
       ],
-      "icon": "\ud83d\udc26",
-      "webUI": {
-        "port": 12393,
-        "path": "/",
-        "label": "AI Companion",
-        "proxyMode": "direct"
-      },
-      "requires": {
-        "min_ram_mb": 512,
-        "min_disk_mb": 2000
-      },
-      "env_vars": [
-        {
-          "name": "COMPANION_TTS_VOICE",
-          "description": "Edge TTS voice name",
-          "default": "en-US-AvaMultilingualNeural",
-          "required": false,
-          "secret": false
-        },
-        {
-          "name": "COMPANION_PERSONA",
-          "description": "Personality prompt for the companion",
-          "default": "You are Crow, an AI companion. Helpful, curious, dry wit. Keep responses concise for speech.",
-          "required": false,
-          "secret": false
-        },
-        {
-          "name": "COMPANION_CHARACTER_NAME",
-          "description": "Display name for the companion",
-          "default": "Crow",
-          "required": false,
-          "secret": false
-        }
-      ],
-      "notes": "Uses Crow AI Profiles for LLM inference. Voice recognition runs locally. TTS uses Edge TTS (free). Requires Tailscale HTTPS for microphone access."
-    },
-    {
-      "id": "coturn",
-      "name": "TURN Server (coturn)",
-      "description": "Self-hosted TURN relay for WebRTC voice chat. Enables NAT traversal for remote companion access when STUN alone is not sufficient.",
-      "type": "bundle",
-      "version": "1.0.0",
-      "author": "Crow",
-      "category": "infrastructure",
-      "tags": ["webrtc", "turn", "nat", "voice", "relay", "infrastructure"],
-      "icon": "radio",
+      "icon": "cpu",
       "docker": {
         "composefile": "docker-compose.yml"
       },
-      "skills": [],
       "requires": {
-        "env": ["TURN_SECRET"],
-        "min_ram_mb": 64,
-        "min_disk_mb": 50
+        "gpu": true,
+        "min_vram_gb": 2,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "cuda"
+        ]
       },
-      "env_vars": [
+      "port": 9100,
+      "host": "49cf71ca878643ba7717f344329266fd",
+      "providers": [
         {
-          "name": "TURN_SECRET",
-          "description": "Shared secret for generating time-limited TURN credentials",
-          "required": true,
-          "secret": true
-        },
-        {
-          "name": "TURN_REALM",
-          "description": "TURN server realm (usually your domain)",
-          "default": "crow.local",
-          "required": false,
-          "secret": false
-        },
-        {
-          "name": "TURN_EXTERNAL_IP",
-          "description": "Public IP of this machine (required for remote access, leave empty for LAN-only)",
-          "required": false,
-          "secret": false
+          "id": "grackle-embed",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Text embeddings via Qwen3-Embedding-0.6B (grackle, always warm)",
+          "models": [
+            {
+              "id": "qwen3-embedding-0.6b",
+              "task": "embed",
+              "dim": 1024,
+              "matryoshkaDims": [
+                1024,
+                768,
+                512,
+                256
+              ],
+              "warm": true,
+              "priority": "interactive"
+            }
+          ]
         }
       ],
-      "ports": [3478, 5349],
-      "webUI": null,
-      "notes": "Optional for Tailscale-only deployments (STUN is sufficient). Required when users connect from restrictive networks. The companion gateway generates time-limited credentials via /api/turn-credentials."
+      "notes": "Always-warm. Pairs with vllm-cuda-rerank. Steady-state ~1.6GB VRAM."
     },
     {
-      "id": "sdxl",
-      "name": "SDXL Background Generator",
+      "id": "vllm-cuda-rerank",
+      "name": "vLLM Reranker (Qwen3-Reranker-0.6B)",
       "version": "1.0.0",
-      "description": "AI-generated backgrounds for the companion avatar using SDXL Turbo. Requires NVIDIA GPU.",
+      "description": "Cross-encoder reranker for hybrid FTS+vector retrieval. Multilingual, instruction-aware. CUDA only.",
       "type": "bundle",
       "author": "Crow",
       "category": "ai",
-      "tags": ["ai", "gpu", "image-generation", "sdxl", "backgrounds"],
-      "icon": "image",
-      "webUI": null,
-      "requires": {
-        "min_ram_mb": 4096,
-        "min_disk_mb": 25000,
-        "gpu": true
+      "tags": [
+        "ai",
+        "reranker",
+        "rag",
+        "cuda",
+        "vllm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
       },
-      "env_vars": [
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 2,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "cuda"
+        ]
+      },
+      "port": 9101,
+      "host": "49cf71ca878643ba7717f344329266fd",
+      "providers": [
         {
-          "name": "SDXL_PORT",
-          "description": "SDXL service port",
-          "default": "3005",
-          "required": false,
-          "secret": false
+          "id": "grackle-rerank",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Cross-encoder reranking via Qwen3-Reranker-0.6B (grackle, always warm)",
+          "models": [
+            {
+              "id": "qwen3-reranker-0.6b",
+              "task": "score",
+              "warm": true,
+              "priority": "interactive"
+            }
+          ]
         }
       ],
-      "ports": [3005],
-      "notes": "Requires nvidia-container-toolkit. Models (~25GB) download on first start. Used by companion and storage server's crow_generate_background tool."
+      "notes": "Always-warm. Use after embeddings retrieval to reorder top-K. Steady-state ~1.6GB VRAM."
+    },
+    {
+      "id": "vllm-cuda-vision",
+      "name": "vLLM Vision (Qwen3-VL-8B-Instruct-FP8)",
+      "version": "1.0.0",
+      "description": "Vision-language model: image understanding, OCR, structured output. FP8 on Blackwell. CUDA only, on-demand.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "vision",
+        "vlm",
+        "ocr",
+        "cuda",
+        "vllm"
+      ],
+      "icon": "eye",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 8,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "cuda"
+        ]
+      },
+      "port": 9102,
+      "host": "49cf71ca878643ba7717f344329266fd",
+      "providers": [
+        {
+          "id": "grackle-vision",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Vision-language inference via Qwen3-VL-8B-Instruct-FP8 (grackle, on-demand)",
+          "models": [
+            {
+              "id": "qwen3-vl-4b-instruct-fp8",
+              "contextLen": 16384,
+              "warm": false,
+              "onDemand": true,
+              "priority": "interactive"
+            }
+          ]
+        }
+      ],
+      "notes": "On-demand. Mutex with embed/rerank during burst (vision unloads them temporarily). ~11GB VRAM peak. Requires vLLM >=0.11.0 + Blackwell or newer for FP8 e4m3."
+    },
+    {
+      "id": "vllm-rocm-kimi",
+      "name": "vLLM Kimi-Linear-48B (ROCm gfx1151, tiered Mode B)",
+      "version": "1.0.0",
+      "description": "Top-tier long-context planner (Kimi-Linear-48B-A3B-Instruct, MoE, 1M context, BF16). Tiered: stops Qwen3-4B + GLM-4.7-Flash when activated. Manual start via crow-mode-big.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "llm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 110,
+        "platform": "linux-x86_64"
+      },
+      "port": 8003,
+      "host": "local",
+      "providers": []
+    },
+    {
+      "id": "vllm-rocm-qwen3",
+      "name": "vLLM Qwen3-4B (ROCm gfx1151)",
+      "version": "1.0.0",
+      "description": "Fast tool-dispatch LLM (Qwen3-4B BF16) served via vLLM on AMD Strix Halo (gfx1151). Part of crow's tiered Mode A.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "llm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 12,
+        "platform": "linux-x86_64"
+      },
+      "port": 8001,
+      "host": "local",
+      "providers": []
+    },
+    {
+      "id": "vllm-rocm-qwen3-32b",
+      "name": "vLLM Qwen3-32B (ROCm gfx1151)",
+      "version": "1.0.0",
+      "description": "Mid-tier reasoning/synthesis LLM (Qwen3-32B dense 32B BF16) on AMD Strix Halo. Replaces GLM-4.7-Flash slot (incompatible architecture). Part of crow's tiered Mode A.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "llm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 80,
+        "platform": "linux-x86_64"
+      },
+      "port": 8002,
+      "host": "local",
+      "providers": []
+    },
+    {
+      "id": "vllm-rocm-qwen35-27b",
+      "name": "vLLM Qwen3.5-27B (ROCm gfx1151)",
+      "version": "1.0.0",
+      "description": "Phase 3 daily-driver upgrade \u2014 Qwen3.5-27B BF16 (Feb 2026 release, ~54GB resident vs 64GB for Qwen3-32B). Served via vLLM-ROCm on AMD Strix Halo (gfx1151). Initially deployed on staging port :8012 alongside legacy :8002 (Qwen3-32B); flip via models.json baseUrl, then retire :8002. Automatic rollback on 4 thresholds per plan \u00a73c.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "llm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 80,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "rocm"
+        ]
+      },
+      "port": 8012,
+      "host": "local",
+      "providers": [
+        {
+          "id": "crow-chat",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Daily-driver mid-tier reasoning/synthesis (Qwen3.5-27B BF16)",
+          "models": [
+            {
+              "id": "qwen3.5-27b",
+              "contextLen": 32768,
+              "warm": true,
+              "priority": "interactive"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vllm-rocm-qwen35-4b",
+      "name": "vLLM Qwen3.5-4B (ROCm gfx1151)",
+      "version": "1.0.0",
+      "description": "Phase 3 dispatch upgrade \u2014 Qwen3.5-4B BF16 (Mar 2026 release, 97.5% multi-tool pass). Served via vLLM-ROCm on AMD Strix Halo (gfx1151). Initially deployed on staging port :8011 alongside the legacy :8001 (Qwen3-4B) for Maker Lab cutover; flip via Maker Lab MCP env var update, then retire :8001.",
+      "type": "bundle",
+      "author": "Crow",
+      "category": "ai",
+      "tags": [
+        "ai",
+        "llm"
+      ],
+      "icon": "cpu",
+      "docker": {
+        "composefile": "docker-compose.yml"
+      },
+      "requires": {
+        "gpu": true,
+        "min_vram_gb": 12,
+        "platform": "linux-x86_64",
+        "gpu_arch": [
+          "rocm"
+        ]
+      },
+      "port": 8011,
+      "host": "local",
+      "providers": [
+        {
+          "id": "crow-dispatch",
+          "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+          "apiKey": "none",
+          "description": "Fast tool-dispatch + Maker Lab classroom endpoint (Qwen3.5-4B BF16)",
+          "models": [
+            {
+              "id": "qwen3.5-4b",
+              "contextLen": 32768,
+              "warm": true,
+              "priority": "maker_lab"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

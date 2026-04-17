@@ -1,0 +1,25 @@
+{
+  "id": "vllm-rocm-qwen3",
+  "name": "vLLM Qwen3-4B (ROCm gfx1151)",
+  "version": "1.0.0",
+  "description": "Fast tool-dispatch LLM (Qwen3-4B BF16) served via vLLM on AMD Strix Halo (gfx1151). Part of crow's tiered Mode A.",
+  "type": "bundle",
+  "author": "Crow",
+  "category": "ai",
+  "tags": [
+    "ai",
+    "llm"
+  ],
+  "icon": "cpu",
+  "docker": {
+    "composefile": "docker-compose.yml"
+  },
+  "requires": {
+    "gpu": true,
+    "min_vram_gb": 12,
+    "platform": "linux-x86_64"
+  },
+  "port": 8001,
+  "host": "local",
+  "providers": []
+}

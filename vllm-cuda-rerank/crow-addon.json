@@ -1,0 +1,47 @@
+{
+  "id": "vllm-cuda-rerank",
+  "name": "vLLM Reranker (Qwen3-Reranker-0.6B)",
+  "version": "1.0.0",
+  "description": "Cross-encoder reranker for hybrid FTS+vector retrieval. Multilingual, instruction-aware. CUDA only.",
+  "type": "bundle",
+  "author": "Crow",
+  "category": "ai",
+  "tags": [
+    "ai",
+    "reranker",
+    "rag",
+    "cuda",
+    "vllm"
+  ],
+  "icon": "cpu",
+  "docker": {
+    "composefile": "docker-compose.yml"
+  },
+  "requires": {
+    "gpu": true,
+    "min_vram_gb": 2,
+    "platform": "linux-x86_64",
+    "gpu_arch": [
+      "cuda"
+    ]
+  },
+  "port": 9101,
+  "host": "49cf71ca878643ba7717f344329266fd",
+  "providers": [
+    {
+      "id": "grackle-rerank",
+      "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+      "apiKey": "none",
+      "description": "Cross-encoder reranking via Qwen3-Reranker-0.6B (grackle, always warm)",
+      "models": [
+        {
+          "id": "qwen3-reranker-0.6b",
+          "task": "score",
+          "warm": true,
+          "priority": "interactive"
+        }
+      ]
+    }
+  ],
+  "notes": "Always-warm. Use after embeddings retrieval to reorder top-K. Steady-state ~1.6GB VRAM."
+}

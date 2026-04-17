@@ -1,0 +1,25 @@
+{
+  "id": "vllm-rocm-kimi",
+  "name": "vLLM Kimi-Linear-48B (ROCm gfx1151, tiered Mode B)",
+  "version": "1.0.0",
+  "description": "Top-tier long-context planner (Kimi-Linear-48B-A3B-Instruct, MoE, 1M context, BF16). Tiered: stops Qwen3-4B + GLM-4.7-Flash when activated. Manual start via crow-mode-big.",
+  "type": "bundle",
+  "author": "Crow",
+  "category": "ai",
+  "tags": [
+    "ai",
+    "llm"
+  ],
+  "icon": "cpu",
+  "docker": {
+    "composefile": "docker-compose.yml"
+  },
+  "requires": {
+    "gpu": true,
+    "min_vram_gb": 110,
+    "platform": "linux-x86_64"
+  },
+  "port": 8003,
+  "host": "local",
+  "providers": []
+}

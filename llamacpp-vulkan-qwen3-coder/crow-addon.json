@@ -1,0 +1,53 @@
+{
+  "id": "llamacpp-vulkan-qwen3-coder",
+  "name": "llama.cpp Coder (Qwen3-Coder-30B-A3B Q8_0)",
+  "version": "1.0.0",
+  "description": "On-demand code specialist MoE (~30GB). Runs on Strix Halo gfx1151 via kyuz0 llama.cpp image. Shares :8003 with GLM-4.5-Air.",
+  "type": "bundle",
+  "author": "Crow",
+  "category": "ai",
+  "tags": [
+    "ai",
+    "code",
+    "llama.cpp",
+    "rocm",
+    "gfx1151",
+    "moe"
+  ],
+  "icon": "cpu",
+  "docker": {
+    "composefile": "docker-compose.yml"
+  },
+  "requires": {
+    "gpu": true,
+    "min_vram_gb": 40,
+    "platform": "linux-x86_64",
+    "gpu_arch": [
+      "rocm"
+    ]
+  },
+  "port": 8003,
+  "host": "local",
+  "providers": [
+    {
+      "id": "crow-swap-coder",
+      "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+      "apiKey": "none",
+      "description": "Code specialist (Qwen3-Coder-30B-A3B Q8_0 MoE, on-demand)",
+      "models": [
+        {
+          "id": "qwen3-coder-30b-a3b",
+          "contextLen": 32768,
+          "warm": false,
+          "onDemand": true,
+          "mutexGroup": "8003-swap",
+          "conflictsWith": [
+            "crow-chat"
+          ],
+          "priority": "interactive"
+        }
+      ]
+    }
+  ],
+  "notes": "On-demand. First start downloads ~30GB from HF. Shares :8003 with GLM-4.5-Air via mutex."
+}

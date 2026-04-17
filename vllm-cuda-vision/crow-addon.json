@@ -1,0 +1,49 @@
+{
+  "id": "vllm-cuda-vision",
+  "name": "vLLM Vision (Qwen3-VL-8B-Instruct-FP8)",
+  "version": "1.0.0",
+  "description": "Vision-language model: image understanding, OCR, structured output. FP8 on Blackwell. CUDA only, on-demand.",
+  "type": "bundle",
+  "author": "Crow",
+  "category": "ai",
+  "tags": [
+    "ai",
+    "vision",
+    "vlm",
+    "ocr",
+    "cuda",
+    "vllm"
+  ],
+  "icon": "eye",
+  "docker": {
+    "composefile": "docker-compose.yml"
+  },
+  "requires": {
+    "gpu": true,
+    "min_vram_gb": 8,
+    "platform": "linux-x86_64",
+    "gpu_arch": [
+      "cuda"
+    ]
+  },
+  "port": 9102,
+  "host": "49cf71ca878643ba7717f344329266fd",
+  "providers": [
+    {
+      "id": "grackle-vision",
+      "baseUrlTemplate": "http://{host_ip}:{port}/v1",
+      "apiKey": "none",
+      "description": "Vision-language inference via Qwen3-VL-8B-Instruct-FP8 (grackle, on-demand)",
+      "models": [
+        {
+          "id": "qwen3-vl-4b-instruct-fp8",
+          "contextLen": 16384,
+          "warm": false,
+          "onDemand": true,
+          "priority": "interactive"
+        }
+      ]
+    }
+  ],
+  "notes": "On-demand. Mutex with embed/rerank during burst (vision unloads them temporarily). ~11GB VRAM peak. Requires vLLM >=0.11.0 + Blackwell or newer for FP8 e4m3."
+}

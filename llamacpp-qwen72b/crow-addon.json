@@ -1,0 +1,25 @@
+{
+  "id": "llamacpp-qwen72b",
+  "name": "llama.cpp Qwen2.5-72B Q4_K_M (ROCm gfx1151, tiered Mode B)",
+  "version": "1.0.0",
+  "description": "Top-tier reasoning (Qwen2.5-72B-Instruct Q4_K_M via llama.cpp-ROCm). Replaces vLLM Kimi slot (custom attention segfaults on gfx1151). 64K context, -fa 1 + --no-mmap per kyuz0/amd-strix-halo-toolboxes.",
+  "type": "bundle",
+  "author": "Crow",
+  "category": "ai",
+  "tags": [
+    "ai",
+    "llm"
+  ],
+  "icon": "cpu",
+  "docker": {
+    "composefile": "docker-compose.yml"
+  },
+  "requires": {
+    "gpu": true,
+    "min_vram_gb": 60,
+    "platform": "linux-x86_64"
+  },
+  "port": 8003,
+  "host": "local",
+  "providers": []
+}
