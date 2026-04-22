@@ -44,8 +44,23 @@ export default {
     const rendererPath = join(appRoot, "servers/blog/renderer.js");
     const { renderMarkdown } = await import(pathToFileURL(rendererPath).href);
 
-    const dbModulePath = join(appRoot, "servers/db.js");
-    const { createDbClient } = await import(pathToFileURL(dbModulePath).href);
+    // The tasks bundle owns its own DB file (tasks.db) to avoid the
+    // multi-writer wedge that hits when gateway + subprocess + panel all
+    // open the same crow.db. The injected `db` above still points at
+    // crow.db and is kept for reads that need core tables (crow_instances).
+    // Task-table reads go through `tasksDb` below. Peer-instance briefing
+    // reads open the peer's tasks.db via the same bundle factory.
+    const { homedir: osHomedir } = await import("node:os");
+    const taskBundleServerDir = (() => {
+      const crowDir = process.env.CROW_HOME || join(osHomedir(), ".crow");
+      const installed = join(crowDir, "bundles", "tasks", "server");
+      return existsSync(installed) ? installed : join(import.meta.dirname, "..", "server");
+    })();
+    const { createDbClient: openTasksDb } = await import(
+      pathToFileURL(join(taskBundleServerDir, "db.js")).href
+    );
+    const tasksDb = openTasksDb();
+    res.on("close", () => { try { tasksDb.close(); } catch {} });
 
     // ===============================================================
     // Constants / helpers
@@ -124,7 +139,7 @@ export default {
 
     async function tablesExist() {
       try {
-        await db.execute({ sql: "SELECT 1 FROM tasks_items LIMIT 1", args: [] });
+        await tasksDb.execute({ sql: "SELECT 1 FROM tasks_items LIMIT 1", args: [] });
         return true;
       } catch {
         return false;
@@ -167,7 +182,7 @@ export default {
     async function fetchRecurrence(recurrenceId) {
       if (recurrenceId == null) return null;
       try {
-        const { rows } = await db.execute({
+        const { rows } = await tasksDb.execute({
           sql: "SELECT id, pattern, interval, until_date, next_occurrence, last_occurrence FROM tasks_recurrence WHERE id = ?",
           args: [Number(recurrenceId)],
         });
@@ -179,7 +194,7 @@ export default {
 
     async function countSubtasks(parentId) {
       try {
-        const { rows } = await db.execute({
+        const { rows } = await tasksDb.execute({
           sql: "SELECT COUNT(*) as n FROM tasks_items WHERE parent_id = ?",
           args: [Number(parentId)],
         });
@@ -256,7 +271,7 @@ export default {
         const endIndent = depth > 0 ? "</div>" : "";
         html += indent + renderTaskRow(row, opts, todayIso, expandSet) + endIndent;
         if (expandSet.has(Number(row.id)) && Number(row.subtask_count) > 0) {
-          const { rows: children } = await db.execute({
+          const { rows: children } = await tasksDb.execute({
             sql: `SELECT t.*, (SELECT COUNT(*) FROM tasks_items WHERE parent_id = t.id) as subtask_count
                   FROM tasks_items t WHERE parent_id = ?
                   ORDER BY CASE WHEN due_date IS NULL THEN 1 ELSE 0 END, due_date, priority DESC`,
@@ -281,7 +296,7 @@ export default {
 
       let parentContext = "";
       if (parentId) {
-        const { rows: parentRows } = await db.execute({
+        const { rows: parentRows } = await tasksDb.execute({
           sql: "SELECT id, title FROM tasks_items WHERE id = ?",
           args: [Number(parentId)],
         });
@@ -414,7 +429,7 @@ export default {
     async function renderTodayView() {
       const todayIso = todayIsoUtc();
       const threshold = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
-      const { rows } = await db.execute({
+      const { rows } = await tasksDb.execute({
         sql: `SELECT t.*,
                      (SELECT COUNT(*) FROM tasks_items WHERE parent_id = t.id) as subtask_count
               FROM tasks_items t
@@ -497,7 +512,7 @@ export default {
         created_at: "ORDER BY t.created_at DESC",
       }[sort];
 
-      const { rows } = await db.execute({
+      const { rows } = await tasksDb.execute({
         sql: `SELECT t.*,
                      (SELECT COUNT(*) FROM tasks_items WHERE parent_id = t.id) as subtask_count
               FROM tasks_items t ${whereSql} ${orderSql}`,
@@ -569,7 +584,7 @@ export default {
     async function renderBriefingsList() {
       let rows = [];
       try {
-        const resList = await db.execute({
+        const resList = await tasksDb.execute({
           sql: "SELECT id, briefing_date, substr(content, 1, 200) as preview, created_at FROM tasks_briefings ORDER BY briefing_date DESC LIMIT 60",
           args: [],
         });
@@ -612,9 +627,15 @@ export default {
     async function fetchRemoteBriefingDirectDb(instance, briefingId) {
       if (!instance.data_dir) return null;
       if (instance.hostname && instance.hostname !== osHostname()) return null;
-      const dbPath = join(instance.data_dir, "crow.db");
-      if (!existsSync(dbPath)) return null;
-      const peerDb = createDbClient(dbPath);
+      // Peer tasks_briefings lives in tasks.db since the tasks-DB split;
+      // fall back to crow.db for peers on the old shared-DB layout.
+      let dbPath = join(instance.data_dir, "tasks.db");
+      if (!existsSync(dbPath)) {
+        const legacyPath = join(instance.data_dir, "crow.db");
+        if (!existsSync(legacyPath)) return null;
+        dbPath = legacyPath;
+      }
+      const peerDb = openTasksDb(dbPath);
       try {
         const { rows } = await peerDb.execute({
           sql: "SELECT id, briefing_date, content, created_at FROM tasks_briefings WHERE id = ?",
@@ -700,7 +721,7 @@ export default {
       }
       let rows = [];
       try {
-        const resLocal = await db.execute({
+        const resLocal = await tasksDb.execute({
           sql: "SELECT id, briefing_date, content, created_at FROM tasks_briefings WHERE id = ?",
           args: [briefingId],
         });
@@ -720,7 +741,7 @@ export default {
 
     if (isNew) return renderTaskForm({ existing: null, parentId: req.query.parent_id });
     if (editId) {
-      const { rows } = await db.execute({
+      const { rows } = await tasksDb.execute({
         sql: "SELECT * FROM tasks_items WHERE id = ?",
         args: [Number(editId)],
       });

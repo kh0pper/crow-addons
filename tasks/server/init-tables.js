@@ -1,9 +1,9 @@
 /**
  * Crow Tasks — Table Initialization
  *
- * Creates tasks_items, tasks_recurrence, and tasks_briefings in the shared
- * crow.db. Safe to re-run (CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT
- * EXISTS everywhere).
+ * Creates tasks_items, tasks_recurrence, and tasks_briefings in the
+ * bundle's dedicated tasks.db file. Safe to re-run (CREATE TABLE IF NOT
+ * EXISTS / CREATE INDEX IF NOT EXISTS everywhere).
  *
  * tasks_items.parent_id is a self-reference for subtasks (ON DELETE CASCADE).
  * tasks_items.project_id is a soft link to Crow's projects table — no FK
