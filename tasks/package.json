@@ -5,8 +5,8 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@libsql/client": "^0.17.2",
     "@modelcontextprotocol/sdk": "^1.12.1",
+    "better-sqlite3": "^12.9.0",
     "zod": "^3.24.2"
   }
 }

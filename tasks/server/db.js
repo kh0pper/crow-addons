@@ -21,7 +21,7 @@
  * Foreign keys are enabled so subtasks cascade-delete with parents.
  */
 
-import { createClient } from "@libsql/client";
+import Database from "better-sqlite3";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { homedir } from "node:os";
@@ -37,14 +37,69 @@ export function resolveDbPath() {
   return resolve(home, "crow", "data", "tasks.db");
 }
 
+function spreadArgs(args) {
+  if (args == null) return [];
+  return Array.isArray(args) ? args : [args];
+}
+
+function executeOne(db, sql, rawArgs) {
+  const stmt = db.prepare(sql);
+  const args = spreadArgs(rawArgs);
+  if (stmt.reader) {
+    const rows = stmt.all(...args);
+    return {
+      rows,
+      columns: rows.length > 0 ? Object.keys(rows[0]) : [],
+      rowsAffected: 0,
+      lastInsertRowid: 0,
+    };
+  }
+  const info = stmt.run(...args);
+  return {
+    rows: [],
+    columns: [],
+    rowsAffected: info.changes,
+    lastInsertRowid: info.lastInsertRowid,
+  };
+}
+
 export function createDbClient(dbPath) {
   const filePath = dbPath || resolveDbPath();
-  const client = createClient({ url: `file:${filePath}` });
-  client.execute("PRAGMA busy_timeout = 5000").catch((err) =>
-    console.warn("[tasks-db] busy_timeout:", err.message)
-  );
-  client.execute("PRAGMA foreign_keys = ON").catch((err) =>
-    console.warn("[tasks-db] foreign_keys:", err.message)
-  );
-  return client;
+  const db = new Database(filePath);
+  try {
+    db.pragma("journal_mode = WAL");
+  } catch (err) {
+    console.warn("[tasks-db] journal_mode:", err.message);
+  }
+  try {
+    db.pragma("busy_timeout = 5000");
+  } catch (err) {
+    console.warn("[tasks-db] busy_timeout:", err.message);
+  }
+  try {
+    db.pragma("foreign_keys = ON");
+  } catch (err) {
+    console.warn("[tasks-db] foreign_keys:", err.message);
+  }
+
+  return {
+    async execute(arg) {
+      if (typeof arg === "string") return executeOne(db, arg, []);
+      return executeOne(db, arg.sql, arg.args);
+    },
+    async batch(statements) {
+      const txn = db.transaction((stmts) => stmts.map((s) => {
+        if (typeof s === "string") return executeOne(db, s, []);
+        return executeOne(db, s.sql, s.args);
+      }));
+      return txn(statements);
+    },
+    async executeMultiple(sql) {
+      db["exec"](sql);
+      return [];
+    },
+    close() {
+      try { db.close(); } catch {}
+    },
+  };
 }
