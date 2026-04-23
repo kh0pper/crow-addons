@@ -148,6 +148,40 @@ export function registerTasksTools(server, db) {
     }
   );
 
+  // ─── tasks_search ───────────────────────────────────────────────────────
+  server.tool(
+    "tasks_search",
+    "Search tasks by a free-text marker matched against title, description, and tags (LIKE). Primary use is dedup: before creating a task, search for an identifying substring (e.g. a source URL) to see if one already exists. Returns { count, items }.",
+    {
+      query: z.string().min(1).max(500).describe("Substring to search for; matched against title, description, and tags via LIKE '%query%'."),
+      status: z.enum(["pending", "in_progress", "done", "cancelled", "open", "any"]).optional().describe("Default: any."),
+      limit: z.number().int().min(1).max(100).optional().describe("Max rows (default 20)."),
+    },
+    async ({ query, status, limit }) => {
+      try {
+        const like = `%${query.replace(/[%_\\]/g, (c) => "\\" + c)}%`;
+        const clauses = [
+          "(title LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\' OR tags LIKE ? ESCAPE '\\')",
+        ];
+        const params = [like, like, like];
+        const st = status || "any";
+        if (st === "open") {
+          clauses.push("status IN ('pending','in_progress')");
+        } else if (st !== "any") {
+          clauses.push("status = ?");
+          params.push(st);
+        }
+        const { rows } = await db.execute({
+          sql: `SELECT * FROM tasks_items WHERE ${clauses.join(" AND ")}
+                ORDER BY updated_at DESC
+                LIMIT ?`,
+          args: [...params, limit || 20],
+        });
+        return ok({ count: rows.length, items: rows.map(rowToItem) });
+      } catch (e) { return err(e.message); }
+    }
+  );
+
   // ─── tasks_get ──────────────────────────────────────────────────────────
   server.tool(
     "tasks_get",
