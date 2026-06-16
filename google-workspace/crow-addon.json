@@ -1,0 +1,36 @@
+{
+  "id": "google-workspace",
+  "name": "Google Workspace",
+  "version": "0.1.0",
+  "description": "Drive, Docs, Sheets, Slides, Gmail, and Calendar tools using your own Google account — runs locally with your OAuth credentials.",
+  "type": "mcp-server",
+  "author": "Maestro Press",
+  "category": "productivity",
+  "tags": ["google", "workspace", "drive", "docs", "sheets", "slides", "gmail", "calendar"],
+  "icon": "cloud",
+  "server": {
+    "command": "uvx",
+    "args": ["--from", "git+https://github.com/kh0pper/google-workspace-mcp", "google-workspace-mcp"],
+    "envKeys": ["GOOGLE_CREDENTIALS_FILE", "GOOGLE_TOKEN_FILE"]
+  },
+  "skills": ["skills/google-workspace.md"],
+  "requires": {
+    "env": [],
+    "min_ram_mb": 256,
+    "min_disk_mb": 200
+  },
+  "env_vars": [
+    {
+      "name": "GOOGLE_CREDENTIALS_FILE",
+      "description": "Path to your Google OAuth client JSON (default: ~/.config/google-workspace-mcp/credentials.json)",
+      "required": false
+    },
+    {
+      "name": "GOOGLE_TOKEN_FILE",
+      "description": "Path to your saved OAuth token (default: ~/.config/google-workspace-mcp/token.json)",
+      "required": false
+    }
+  ],
+  "ports": [],
+  "notes": "Python MCP server run via uvx from github.com/kh0pper/google-workspace-mcp (57 tools across Drive, Docs, Sheets, Slides, Gmail, Calendar). One-time setup: create a Google Cloud OAuth client (Desktop type), save its JSON to ~/.config/google-workspace-mcp/credentials.json, then run `uvx --from git+https://github.com/kh0pper/google-workspace-mcp google-workspace-mcp-authorize --manual` and follow the prompts. Full guide: https://github.com/kh0pper/google-workspace-mcp"
+}
