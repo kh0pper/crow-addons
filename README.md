@@ -6,6 +6,7 @@ Official add-on registry for [Crow](https://github.com/kh0pper/crow) — install
 
 | Add-on | Type | Description |
 |--------|------|-------------|
+| [Google Workspace](google-workspace/) | MCP Server | Drive, Docs, Sheets, Slides, Gmail, and Calendar with your own Google account |
 | [Obsidian Vault](obsidian/) | MCP Server | Connect your Obsidian vault for reading, searching, and syncing notes |
 | [Home Assistant](home-assistant/) | MCP Server | Control your smart home — lights, temperature, switches |
 | [Ollama](ollama/) | Docker Bundle | Run local AI models for embeddings and summarization |

@@ -217,6 +217,44 @@
       "notes": "10 MCP tools for data exploration. Includes SQL editor, schema explorer, and case study publishing. Works with any SQLite database registered as a project backend."
     },
     {
+      "id": "google-workspace",
+      "name": "Google Workspace",
+      "description": "Drive, Docs, Sheets, Slides, Gmail, and Calendar tools using your own Google account \u2014 runs locally with your OAuth credentials.",
+      "type": "mcp-server",
+      "version": "0.1.0",
+      "author": "Maestro Press",
+      "category": "productivity",
+      "tags": [
+        "google",
+        "workspace",
+        "drive",
+        "docs",
+        "sheets",
+        "slides",
+        "gmail",
+        "calendar"
+      ],
+      "icon": "cloud",
+      "webUI": null,
+      "requires": {
+        "env": [],
+        "min_ram_mb": 256,
+        "min_disk_mb": 200
+      },
+      "env_vars": [
+        {
+          "name": "GOOGLE_CREDENTIALS_FILE",
+          "description": "Path to your Google OAuth client JSON (default: ~/.config/google-workspace-mcp/credentials.json)",
+          "required": false
+        },
+        {
+          "name": "GOOGLE_TOKEN_FILE",
+          "description": "Path to your saved OAuth token (default: ~/.config/google-workspace-mcp/token.json)",
+          "required": false
+        }
+      ]
+    },
+    {
       "id": "home-assistant",
       "name": "Home Assistant",
       "description": "Control your smart home through Home Assistant \u2014 lights, temperature, switches, and more",
