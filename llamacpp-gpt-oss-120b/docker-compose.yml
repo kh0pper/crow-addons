@@ -1,0 +1,43 @@
+services:
+  llamacpp-gpt-oss-120b:
+    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.1
+    container_name: llamacpp-gpt-oss-120b
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      - "${CROW_TAILSCALE_IP}:8005:8000"
+    entrypoint: ["llama-server"]
+    command:
+      # gpt-oss-120b (OpenAI open-weight MoE, 117B total / 5.1B active),
+      # native MXFP4 (~63 GB, 3 shards). Downloaded 2026-07-01 from:
+      #   https://huggingface.co/ggml-org/gpt-oss-120b-GGUF
+      # ON-DEMAND; can co-run with the 35B (63+26 GB + KV) at moderate ctx.
+      - -m
+      - /models/gpt-oss-120b/gpt-oss-120b-mxfp4-00001-of-00003.gguf
+      - --alias
+      - gpt-oss-120b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - --no-mmap
+      - -c
+      - "131072"
+      - -np
+      - "1"
+      - --jinja
+    restart: "no"
+    ipc: host
+    shm_size: 16g
