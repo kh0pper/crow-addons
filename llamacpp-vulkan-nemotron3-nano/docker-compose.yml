@@ -1,0 +1,45 @@
+services:
+  llamacpp-vulkan-nemotron3-nano:
+    image: kyuz0/amd-strix-halo-toolboxes:vulkan-radv-mtp
+    container_name: llamacpp-vulkan-nemotron3-nano
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      - "${CROW_TAILSCALE_IP}:8009:8000"
+    entrypoint: ["llama-server"]
+    command:
+      # NVIDIA Nemotron 3 Nano 30B-A3B (hybrid Mamba-Transformer MoE, only
+      # 6 attention layers, native 1M ctx), UD-Q5_K_XL (~23 GB, 1 file).
+      # Downloaded 2026-07-04:
+      #   https://huggingface.co/unsloth/Nemotron-3-Nano-30B-A3B-GGUF
+      # Long-horizon candidate: -c 524288 to start (validated needle target);
+      # step to 1048576 only in a supervised window with a deadman watchdog.
+      - -m
+      - /models/nemotron3-nano-30b-a3b/Nemotron-3-Nano-30B-A3B-UD-Q5_K_XL.gguf
+      - --alias
+      - nemotron-3-nano-30b-a3b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - --no-mmap
+      - -c
+      - "524288"
+      - -np
+      - "1"
+      - --jinja
+    restart: "no"
+    ipc: host
+    shm_size: 16g

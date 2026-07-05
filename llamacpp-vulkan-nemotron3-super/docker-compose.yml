@@ -1,0 +1,49 @@
+services:
+  llamacpp-vulkan-nemotron3-super:
+    image: kyuz0/amd-strix-halo-toolboxes:vulkan-radv-mtp
+    container_name: llamacpp-vulkan-nemotron3-super
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      - "${CROW_TAILSCALE_IP}:8008:8000"
+    entrypoint: ["llama-server"]
+    command:
+      # NVIDIA Nemotron 3 Super 120B-A12B (hybrid Mamba-Transformer MoE,
+      # native 1M ctx), UD-IQ4_XS (~60 GB, 3 shards). Downloaded 2026-07-04:
+      #   https://huggingface.co/unsloth/NVIDIA-Nemotron-3-Super-120B-A12B-GGUF
+      # ON-DEMAND (group heavy): evicts the 35B. Text-only (no mmproj).
+      # -c 262144 to start — the mamba hybrid keeps long-ctx state small;
+      # raise toward 1M after validating RAM headroom.
+      - -m
+      - /models/nemotron3-super-120b-a12b/NVIDIA-Nemotron-3-Super-120B-A12B-UD-IQ4_XS-00001-of-00003.gguf
+      - --alias
+      - nemotron-3-super-120b-a12b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - --no-mmap
+      - -c
+      - "262144"
+      - -np
+      - "1"
+      - --jinja
+      # Speculative decoding tested 2026-07-04, both reverted: external 4B
+      # draft rejected (unsloth 4B GGUF add_bos_token mismatches Super ->
+      # "vocabs are not compatible"; retry with nvidia's own 4B GGUF or flip
+      # the bit via gguf-py), ngram-simple gained only ~6% (15.3 vs 14.4 t/s).
+    restart: "no"
+    ipc: host
+    shm_size: 16g
