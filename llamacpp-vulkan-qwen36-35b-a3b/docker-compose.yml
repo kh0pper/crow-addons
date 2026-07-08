@@ -1,6 +1,14 @@
 services:
   llamacpp-vulkan-qwen36-35b-a3b:
-    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.1
+    # 2026-07-08: image corrected rocm-7.2.1 → vulkan-radv-mtp after the
+    # h2-35b-overnight incident. The rocm-7.2.1 llama-server predates
+    # draft-mtp (rejects --spec-type draft-mtp) and cannot load this gguf
+    # (missing tensor blk.40.ssm_conv1d.weight) — the image line here was
+    # stale; the long-running prod container was built from vulkan-radv-mtp.
+    # Verified live on restore: draft-mtp initializes, acceptance 0.897.
+    # Backend upgrades (newer llama.cpp with MTP) go through a measured
+    # window, not an in-place tag swap.
+    image: kyuz0/amd-strix-halo-toolboxes:vulkan-radv-mtp
     container_name: llamacpp-vulkan-qwen36-35b-a3b
     devices:
       - /dev/kfd
