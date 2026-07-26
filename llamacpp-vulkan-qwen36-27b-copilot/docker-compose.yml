@@ -1,0 +1,63 @@
+services:
+  llamacpp-vulkan-qwen36-27b-copilot:
+    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.1
+    container_name: llamacpp-vulkan-qwen36-27b-copilot
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      - "${CROW_TAILSCALE_IP}:8010:8000"
+    entrypoint: ["llama-server"]
+    command:
+      # COPILOT instance of Qwen3.6-27B (2026-07-06): co-resides with the 35b
+      # (group "standard", evicts heavy+solo) so the critic refute-pass /
+      # recall probe / diverse critique stop paying a 35b eviction + reload
+      # per run. 65536 ctx keeps KV small (f16 was 4096 MiB; q8_0 KV ~half —
+      # H.2 2026-07-07); 262144 = 16GB f16 measured on the solo — too big to
+      # co-reside in the ~42GB headroom next to the 35b. The SOLO 27b entry
+      # (port 8006, full 262144, vision) is unchanged.
+      # TEXT-ONLY on purpose: no --mmproj. Refuters/probe review diffs; they
+      # never need vision. (Historical note: this instance originally also
+      # carried --cache-reuse 256, but that flag is INERT for Qwen3.6-27B on
+      # every tested image — "cache reuse is not supported by this context",
+      # n_swa=0, verified H.4 2026-07-07. The real cache win is llama.cpp
+      # slot prefix caching (cache_prompt, default-on): identical-prefix
+      # requests skip prefill entirely. Schedule for identical PREFIXES.)
+      # -ctk/-ctv q8_0 (H.2 2026-07-07): quantized KV cache — halves KV
+      # memory; KLD/PPL vs f16-KV measured near-lossless (see
+      # crow/scripts/bench/results/quality/ kld-27bq6-q8kv-* and
+      # ppl-27bq6-*-c4096-*). Requires -fa on (present).
+      # -np 1: concurrent refuters serialize server-side; acceptable latency
+      # tradeoff to keep the whole 65536 window per request.
+      - -m
+      - /models/qwen36-27b/Qwen3.6-27B-UD-Q6_K_XL.gguf
+      - --alias
+      - qwen3.6-27b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - --no-mmap
+      - -c
+      - "65536"
+      - -ctk
+      - q8_0
+      - -ctv
+      - q8_0
+      - -np
+      - "1"
+      - --jinja
+    restart: "no"
+    ipc: host
+    shm_size: 16g
