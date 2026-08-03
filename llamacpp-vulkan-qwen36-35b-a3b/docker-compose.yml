@@ -53,6 +53,9 @@ services:
       - --spec-draft-n-max
       - "2"
       - --jinja
-    restart: "no"
+    # was "no" until 2026-08-03: the 08-03 reboot left this Exited(0) and bots
+    # were dark ~8.5h. unless-stopped matches the other model containers and is
+    # window-compatible (docker stop marks it manually-stopped).
+    restart: unless-stopped
     ipc: host
     shm_size: 16g
