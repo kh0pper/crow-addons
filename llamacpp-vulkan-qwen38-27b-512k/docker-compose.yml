@@ -1,0 +1,127 @@
+services:
+  llamacpp-vulkan-qwen38-27b-512k:
+    # Qwen3.8-27B at 524288 context — the DELIBERATE long-context variant.
+    #
+    # WHY A SEPARATE BUNDLE INSTEAD OF RAISING THE SOLO SLOT:
+    # 262144 is this model's NATIVE window. Going past it needs YaRN, and YaRN
+    # here is STATIC — the scaling applies at every prompt length, and Qwen
+    # explicitly warn it degrades shorter contexts ("modify configuration only
+    # when processing long contexts is necessary"). Making 512k the everyday
+    # default would tax all normal 5-50k work to buy length that is rarely used.
+    # So the solo slot (:8006) stays native and THIS is started on purpose when
+    # the length is actually needed.
+    #
+    # rope-scale 2, NOT 4: Qwen's guidance is to size the factor to the real
+    # requirement (2 x 262144 = exactly 524288). Factor 4 is for 1M and distorts
+    # more than necessary here.
+    #
+    # --override-kv is REQUIRED: llama-server silently caps the slot at the
+    # model's trained context otherwise — "the slot context (524288) exceeds the
+    # training context of the model (262144) - capping". The YaRN flags alone do
+    # NOT lift that cap; it reads the gguf's context_length. (Learned 2026-08-16
+    # while characterising the 1M window.)
+    #
+    # MEMORY (measured 2026-08-16, 124 GiB GTT box, ~24 GiB of other lab
+    # containers): weights 24.1 + KV q8_0 17.0 + recurrent 0.75 + compute ~14
+    # (at ub 2048) + 2 checkpoints ~2.5 = ~58 GiB, ~81 GiB total, ~43 GiB
+    # headroom. Comfortable. For contrast the 1M window left ~34 GiB at ub 512
+    # and could not fit ub 2048 at all.
+    # This is group "solo": it evicts the 35b. 512k CANNOT co-reside with the
+    # 35b (~106 GiB total, ~18 GiB headroom — that is the band that swapped and
+    # collapsed prefill on 2026-08-16).
+    #
+    # -ub 2048 is affordable HERE and is the documented Strix Halo long-context
+    # prefill lever (~1.6x on DSv4). It is the main reason 512k is far more
+    # practical than 1M, which is stuck at ub 512.
+    #
+    # -ctxcp 2 --cache-ram 0: context checkpoints measure 149.6 MiB + 2.14
+    # KiB/token on this model (the constant is the 48-layer SSM recurrent
+    # state), so they are ~1.3 GiB each at 512k and the default cap is 32. The
+    # default prompt cache is another 8 GiB. Those two growth terms — not the KV
+    # — are what drove the 2026-08-16 near-OOM.
+    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.3
+    container_name: llamacpp-vulkan-qwen38-27b-512k
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      # 8014: first port free across ALL THREE registries — docs/developers/
+      # port-allocation.md, every compose under crow-addons/ + crow/bundles/,
+      # and live listeners. 8007 was the first pick and is WRONG: it is already
+      # allocated to llamacpp-cpu-qwen3-embed (127.0.0.1, PR #111). Different
+      # bind address so it would not have collided at the socket level, which is
+      # exactly why it would have gone unnoticed. The doc alone is not
+      # authoritative either — 8008/8009 are claimed by nemotron bundles that
+      # have no doc row. Check all three before taking a port.
+      - "${CROW_TAILSCALE_IP}:8014:8000"
+    entrypoint: ["llama-server"]
+    command:
+      - -m
+      - /models/qwen38-27b/Qwen3.8-27B-UD-Q6_K_XL.gguf
+      - --mmproj
+      - /models/qwen38-27b/mmproj-F16.gguf
+      - --alias
+      - qwen3.8-27b-512k
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - -ctk
+      - q8_0
+      - -ctv
+      - q8_0
+      - --no-mmap
+      - -c
+      - "524288"
+      - -np
+      - "1"
+      # YaRN x2 over the native 262144 -> 524288
+      - --rope-scaling
+      - yarn
+      - --rope-scale
+      - "2"
+      - --yarn-orig-ctx
+      - "262144"
+      - --override-kv
+      - qwen35.context_length=int:524288
+      # MTP (baked into the main gguf); n-max 4 = the 2026-08-16 sweep winner
+      - --spec-type
+      - draft-mtp
+      - --spec-draft-n-max
+      - "4"
+      # long-context prefill lever — fits at 512k, does NOT fit at 1M
+      - -b
+      - "2048"
+      - -ub
+      - "2048"
+      # keep the two growth terms bounded (see note above)
+      - -ctxcp
+      - "2"
+      - --cache-ram
+      - "0"
+      # Qwen's published thinking-mode sampling defaults; client params override.
+      - --temp
+      - "1.0"
+      - --top-p
+      - "0.95"
+      - --top-k
+      - "20"
+      - --min-p
+      - "0.0"
+      - --presence-penalty
+      - "0.0"
+      - --jinja
+    restart: "no"
+    ipc: host
+    shm_size: 16g

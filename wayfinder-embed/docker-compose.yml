@@ -1,0 +1,45 @@
+services:
+  wayfinder-embed:
+    # Wayfinder KB embedding model (R4 TEHCY). EmbeddingGemma 300M Q8_0 on the
+    # Strix Halo iGPU via Vulkan. Binds localhost only: consumed by the
+    # crow-r4-gateway on the same host (KB_EMBED_URL=http://127.0.0.1:3794/v1,
+    # KB_EMBED_MODEL=embeddinggemma) for kb_embeddings / RRF semantic search.
+    #
+    # RECONSTRUCTED 2026-08-02 after the container was found missing during the
+    # DSv4 eval. It previously had NO compose file, bundle, or addon definition
+    # anywhere on the box, so it could not be recreated from source — this file
+    # closes that gap. Config mirrors the sibling llamacpp-vulkan-gemma4-e2b.
+    #
+    # POOLING IS DELIBERATELY NOT SET: the GGUF declares pooling_type=1 (MEAN)
+    # and llama.cpp honours it. Overriding it would silently produce vectors
+    # incompatible with the rows already in kb_embeddings.
+    image: kyuz0/amd-strix-halo-toolboxes:vulkan-radv-mtp
+    container_name: wayfinder-embed
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    volumes:
+      - ${WAYFINDER_MODELS}:/models
+    ports:
+      - "127.0.0.1:3794:8000"
+    entrypoint: ["llama-server"]
+    command:
+      - -m
+      - /models/embeddinggemma-300M-Q8_0.gguf
+      - --alias
+      - embeddinggemma
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --embeddings
+      - -ngl
+      - "999"
+      - -c
+      - "2048"
+    restart: unless-stopped
+    ipc: host
+    shm_size: 2g

@@ -1,0 +1,89 @@
+services:
+  llamacpp-vulkan-qwen38-27b:
+    # Qwen3.8-27B dense (released 2026-08-14) — replaces Qwen3.6-27B in the SOLO
+    # slot. Same arch as 3.6 (gguf general.architecture = qwen35, 64 layers), same
+    # quant tier (unsloth UD-Q6_K_XL, 25.9 GB vs 3.6's 24.4 GB), same port/context.
+    #
+    # IMAGE CHANGE rocm-7.2.1 -> rocm-7.2.3, forced by MTP:
+    #   rocm-7.2.1 (llama.cpp build 8833, 2026-04-17) HAS the qwen35 nextn tensor
+    #   entries so it can LOAD this gguf, but its speculative.cpp has NO "draft-mtp"
+    #   type at all — MTP is simply unavailable there. rocm-7.2.3 (build 9189,
+    #   2026-05-16) has both the nextn arch entries AND draft-mtp, and its
+    #   src/models/qwen35.cpp carries the full load_block_mtp path.
+    #   Cost of the swap: H.4's backend A/B measured rocm-7.2.3 at -2.5% 27b prefill
+    #   vs rocm-7.2.1 (and rocm-7.2.1 at +57% over vulkan-radv-mtp). So this buys MTP
+    #   for ~2.5% prefill, rather than the ~36% the vulkan-radv-mtp image would cost.
+    #   UNVERIFIED until first run: MTP + --mmproj co-load on THIS image (only ever
+    #   gate-checked on vulkan-radv-mtp, for the 35b), and MTP x q8_0 KV interaction.
+    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.3
+    container_name: llamacpp-vulkan-qwen38-27b
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      - "${CROW_TAILSCALE_IP}:8006:8000"
+    entrypoint: ["llama-server"]
+    command:
+      # Solo runner: starting it evicts the other locals, which is what allows the
+      # full native 262144 context. One tap on the 35B restores bot service after.
+      # Files from unsloth/Qwen3.8-27B-GGUF.
+      - -m
+      - /models/qwen38-27b/Qwen3.8-27B-UD-Q6_K_XL.gguf
+      - --mmproj
+      - /models/qwen38-27b/mmproj-F16.gguf
+      - --alias
+      - qwen3.8-27b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      # q8_0 KV carried over from H.2 (2026-07-07), which measured it near-lossless
+      # on 3.6 (mean KLD 0.0016 vs f16-KV). NOT re-validated on 3.8 weights yet.
+      - -ctk
+      - q8_0
+      - -ctv
+      - q8_0
+      - --no-mmap
+      - -c
+      - "262144"
+      # MTP requires -np 1 (incompatible with --parallel > 1), same as the 35b.
+      - -np
+      - "1"
+      # MTP ships INSIDE the main unsloth gguf for 3.8: qwen35.nextn_predict_layers=1
+      # plus 4 blk.64.nextn.* tensors (866 tensors vs 3.6's 851). No separate MTP
+      # gguf and no draft model. n-max 4 = the 2026-08-16 sweep winner on the
+      # 2305-tok code-review bench: n2 13.91 t/s (66.7% accept), n4 15.22 (49%),
+      # n8 11.73 (26%), n16 7.28 (15.5% — worse than MTP off). Acceptance decays
+      # with depth and the self-draft shares the iGPU, so deeper is NOT better
+      # here; --spec-draft-p-min had zero effect (n8 with/without identical).
+      - --spec-type
+      - draft-mtp
+      - --spec-draft-n-max
+      - "4"
+      # Qwen's published thinking-mode sampling defaults for Qwen3.8-27B. Per-request
+      # values from a client still override these.
+      - --temp
+      - "1.0"
+      - --top-p
+      - "0.95"
+      - --top-k
+      - "20"
+      - --min-p
+      - "0.0"
+      - --presence-penalty
+      - "0.0"
+      - --jinja
+    restart: "no"
+    ipc: host
+    shm_size: 16g

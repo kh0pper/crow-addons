@@ -1,0 +1,41 @@
+services:
+  llamacpp-vulkan-gemma4-e2b:
+    # Wayfinder ask-generation model (R4 TEHCY). Gemma 4 E2B Q4_0 on the
+    # Strix Halo iGPU via Vulkan — replaces the CPU wayfinder-askgen
+    # container (5-20 s answers) with GPU inference. Binds localhost only:
+    # consumed by the crow-r4-gateway on the same host (ASK_LLM_URL).
+    # Tiny footprint (~3 GB) — always-on, no swap group.
+    image: kyuz0/amd-strix-halo-toolboxes:vulkan-radv-mtp
+    container_name: llamacpp-vulkan-gemma4-e2b
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    volumes:
+      - ${WAYFINDER_MODELS}:/models
+    ports:
+      - "127.0.0.1:3796:8000"
+    entrypoint: ["llama-server"]
+    command:
+      - -m
+      - /models/gemma-4-E2B-it-Q4_0.gguf
+      - --alias
+      - gemma-4-e2b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - -c
+      - "8192"
+      - --jinja
+      - --reasoning-budget
+      - "0"
+    restart: unless-stopped
+    ipc: host
+    shm_size: 4g

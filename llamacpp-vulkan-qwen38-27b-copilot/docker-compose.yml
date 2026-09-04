@@ -1,0 +1,83 @@
+services:
+  llamacpp-vulkan-qwen38-27b-copilot:
+    # COPILOT instance of Qwen3.8-27B — replaces the Qwen3.6-27B copilot. Co-resides
+    # with the 35b (group "standard", evicts heavy+solo) so the critic refute-pass /
+    # recall probe / diverse critique don't pay a 35b eviction + reload per run.
+    # 65536 ctx keeps KV small; 262144 is too big to co-reside in the headroom next
+    # to the 35b. TEXT-ONLY on purpose: no --mmproj — refuters review diffs.
+    #
+    # IMAGE CHANGE rocm-7.2.1 -> rocm-7.2.3: forced by MTP. rocm-7.2.1 (build 8833)
+    # can load the gguf's nextn tensors but has no "draft-mtp" spec type at all;
+    # rocm-7.2.3 (build 9189) has draft-mtp plus the qwen35 load_block_mtp path.
+    # H.4 measured rocm-7.2.3 at -2.5% 27b prefill vs rocm-7.2.1 — far cheaper than
+    # the vulkan-radv-mtp image, which H.4 put ~36% below rocm-7.2.1 on 27b prefill.
+    #
+    # NOTE (behaviour change to watch): the 3.6 copilot set NO sampling flags, so it
+    # ran llama-server defaults (temp 0.8 / top_p 0.9 / top_k 40). This one pins
+    # Qwen's published values. Net effect is mild and top_k 20 is TIGHTER than 40,
+    # but temp goes 0.8 -> 1.0 on the instance that emits the critics' fenced-JSON
+    # verdicts. If parse-error / recovery-ladder rates climb after the swap, drop
+    # --temp here first — that is the cheapest lever and it is isolated to this file.
+    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.3
+    container_name: llamacpp-vulkan-qwen38-27b-copilot
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID}"
+      - "${RENDER_GID}"
+    env_file:
+      - ${HOME}/.crow/env/rocm.env
+    volumes:
+      - ${LLM_CACHE}:/models
+    ports:
+      - "${CROW_TAILSCALE_IP}:8010:8000"
+    entrypoint: ["llama-server"]
+    command:
+      - -m
+      - /models/qwen38-27b/Qwen3.8-27B-UD-Q6_K_XL.gguf
+      - --alias
+      - qwen3.8-27b
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - -ngl
+      - "999"
+      - -fa
+      - "on"
+      - --no-mmap
+      - -c
+      - "65536"
+      # q8_0 KV carried over from H.2; requires -fa on (present). Near-lossless on
+      # 3.6 weights (KLD 0.0016) — not yet re-validated on 3.8.
+      - -ctk
+      - q8_0
+      - -ctv
+      - q8_0
+      # -np 1: required by MTP, and keeps the whole 65536 window per request.
+      - -np
+      - "1"
+      # MTP is baked into the main unsloth gguf (qwen35.nextn_predict_layers=1,
+      # 4 blk.64.nextn.* tensors). n-max 4 = 2026-08-16 sweep winner (n2 13.91,
+      # n4 15.22, n8 11.73, n16 7.28 t/s; acceptance decays 66.7->49->26->15.5%
+      # with depth — deeper is worse on this stack; p-min had zero effect).
+      - --spec-type
+      - draft-mtp
+      - --spec-draft-n-max
+      - "4"
+      # Qwen's published thinking-mode sampling defaults; client params override.
+      - --temp
+      - "1.0"
+      - --top-p
+      - "0.95"
+      - --top-k
+      - "20"
+      - --min-p
+      - "0.0"
+      - --presence-penalty
+      - "0.0"
+      - --jinja
+    restart: "no"
+    ipc: host
+    shm_size: 16g
