@@ -1,24 +1,29 @@
 services:
   llamacpp-vulkan-qwen38-27b-copilot:
-    # COPILOT instance of Qwen3.8-27B — replaces the Qwen3.6-27B copilot. Co-resides
-    # with the 35b (group "standard", evicts heavy+solo) so the critic refute-pass /
-    # recall probe / diverse critique don't pay a 35b eviction + reload per run.
-    # 65536 ctx keeps KV small; 262144 is too big to co-reside in the headroom next
-    # to the 35b. TEXT-ONLY on purpose: no --mmproj — refuters review diffs.
+    # COPILOT instance of Qwen3.8-27B. Co-resides with the 35b (group "standard",
+    # evicts heavy+solo) so the critic refute-pass / recall probe / diverse critique
+    # don't pay a 35b eviction + reload per run. 65536 ctx keeps the KV small.
+    # TEXT-ONLY on purpose: refuters review diffs.
     #
-    # IMAGE CHANGE rocm-7.2.1 -> rocm-7.2.3: forced by MTP. rocm-7.2.1 (build 8833)
-    # can load the gguf's nextn tensors but has no "draft-mtp" spec type at all;
-    # rocm-7.2.3 (build 9189) has draft-mtp plus the qwen35 load_block_mtp path.
-    # H.4 measured rocm-7.2.3 at -2.5% 27b prefill vs rocm-7.2.1 — far cheaper than
-    # the vulkan-radv-mtp image, which H.4 put ~36% below rocm-7.2.1 on 27b prefill.
+    # ENGINE: gufo (since 2026-10-02; was llama.cpp rocm-7.2.3 draft-mtp n4, q8_0 KV).
+    # The container name keeps its old "llamacpp-vulkan" prefix so every consumer
+    # (pi localModels, dsv4-window.sh KNOWN_MODEL_CONTAINERS, zoo-q38-27b-arm.sh,
+    # crow gateway provider crow-local-27b-copilot) keeps working unchanged.
+    # Measured on crow 2026-10-01, same Q6 file, gufo + DFlash2 vs llama.cpp:
+    # prefill 547/427/253 vs 265/179/85 t/s at depth 0/32k/131k, decode
+    # 15.4/12.7/8.5 vs 12.4/11.6/5.5 t/s, zoo 9/9 with 0 false positives.
+    # gufo sampling defaults for this model already equal the old llama.cpp flags
+    # (temp 1.0, top_p 0.95, top_k 20, min_p 0,
+    # presence 0; repeat penalty 1.0 = off in both, checked against the rocm-7.2.3 llama-server help); client params override.
     #
-    # NOTE (behaviour change to watch): the 3.6 copilot set NO sampling flags, so it
-    # ran llama-server defaults (temp 0.8 / top_p 0.9 / top_k 40). This one pins
-    # Qwen's published values. Net effect is mild and top_k 20 is TIGHTER than 40,
-    # but temp goes 0.8 -> 1.0 on the instance that emits the critics' fenced-JSON
-    # verdicts. If parse-error / recovery-ladder rates climb after the swap, drop
-    # --temp here first — that is the cheapest lever and it is isolated to this file.
-    image: kyuz0/amd-strix-halo-toolboxes:rocm-7.2.3
+    # The binary is a host build mounted from ~/gufo-prod/current (the same build
+    # family raven prod runs); the nix image supplies its ROCm/runtime closure via
+    # the gufo-nix volume. Upgrade = repoint ~/gufo-prod/current + recreate.
+    # Rollback = git checkout of this file's llama.cpp version + recreate.
+    # Coupling: the solo and copilot slots share ~/gufo-prod/current and the gufo-nix
+    # volume, so a bad repoint or a pruned volume takes BOTH down; smoke a new build
+    # on one slot before restarting the other.
+    image: docker.io/nixos/nix:latest
     container_name: llamacpp-vulkan-qwen38-27b-copilot
     devices:
       - /dev/kfd
@@ -26,58 +31,46 @@ services:
     group_add:
       - "${VIDEO_GID}"
       - "${RENDER_GID}"
-    env_file:
-      - ${HOME}/.crow/env/rocm.env
+    ulimits:
+      memlock: -1
     volumes:
-      - ${LLM_CACHE}:/models
+      - gufo-nix:/nix
+      - ${HOME}/gufo-prod:/opt/gufo:ro
+      # Only the two files this instance needs: gufo auto-discovers an mmproj
+      # beside the model, and this slot is text-only.
+      - ${LLM_CACHE}/qwen38-27b/Qwen3.8-27B-UD-Q6_K_XL.gguf:/models/Qwen3.8-27B-UD-Q6_K_XL.gguf:ro
+      - ${LLM_CACHE}/qwen38-27b/Qwen3.8-27B-DFlash2-Q4_K_M.gguf:/models/Qwen3.8-27B-DFlash2-Q4_K_M.gguf:ro
     ports:
       - "${CROW_TAILSCALE_IP}:8010:8000"
-    entrypoint: ["llama-server"]
     command:
-      - -m
-      - /models/qwen38-27b/Qwen3.8-27B-UD-Q6_K_XL.gguf
-      - --alias
+      - /opt/gufo/current/gufo
+      - serve
+      - llm
+      - --model
+      - /models/Qwen3.8-27B-UD-Q6_K_XL.gguf
+      - --speculative
+      - dflash2
+      - --dflash-model
+      - /models/Qwen3.8-27B-DFlash2-Q4_K_M.gguf
+      - --context
+      - "65536"
+      # One GPU session, like the old -np 1; concurrent critic units queue.
+      - --sessions
+      - "1"
+      - --served-model-name
       - qwen3.8-27b
+      # Critic fan-out sends up to 4 concurrent units from one client IP.
+      - --max-pending-per-client
+      - "16"
       - --host
-      - "0.0.0.0"
+      - 0.0.0.0
       - --port
       - "8000"
-      - -ngl
-      - "999"
-      - -fa
-      - "on"
-      - --no-mmap
-      - -c
-      - "65536"
-      # q8_0 KV carried over from H.2; requires -fa on (present). Near-lossless on
-      # 3.6 weights (KLD 0.0016) — not yet re-validated on 3.8.
-      - -ctk
-      - q8_0
-      - -ctv
-      - q8_0
-      # -np 1: required by MTP, and keeps the whole 65536 window per request.
-      - -np
-      - "1"
-      # MTP is baked into the main unsloth gguf (qwen35.nextn_predict_layers=1,
-      # 4 blk.64.nextn.* tensors). n-max 4 = 2026-08-16 sweep winner (n2 13.91,
-      # n4 15.22, n8 11.73, n16 7.28 t/s; acceptance decays 66.7->49->26->15.5%
-      # with depth — deeper is worse on this stack; p-min had zero effect).
-      - --spec-type
-      - draft-mtp
-      - --spec-draft-n-max
-      - "4"
-      # Qwen's published thinking-mode sampling defaults; client params override.
-      - --temp
-      - "1.0"
-      - --top-p
-      - "0.95"
-      - --top-k
-      - "20"
-      - --min-p
-      - "0.0"
-      - --presence-penalty
-      - "0.0"
-      - --jinja
+    stop_grace_period: 120s
     restart: "no"
     ipc: host
     shm_size: 16g
+
+volumes:
+  gufo-nix:
+    external: true
