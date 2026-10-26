@@ -62,7 +62,7 @@ services:
       # Critic fan-out sends up to 4 concurrent units from one client IP.
       - --max-pending-per-client
       - "16"
-      # Fixed RAM cache (Kevin 2026-10-26): the auto size takes up to half of free host RAM at start and pins it,
+      # Fixed RAM cache (operator 2026-10-26): the auto size takes up to half of free host RAM at start and pins it,
       # which pushed crow near earlyoom during the nightly audit beside the 35b.
       - --cache-ram-bytes
       - "8589934592"
